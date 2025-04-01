@@ -19,7 +19,11 @@ class BrowserBookmarks:
             BrowserType.CHROME: ChromeParser(),
             BrowserType.FIREFOX: FirefoxParser(),
             BrowserType.EDGE: EdgeParser(),
-            BrowserType.BRAVE: ChromeParser()  # Brave uses Chrome's bookmark format
+            BrowserType.BRAVE: ChromeParser(),  # Brave uses Chrome's bookmark format
+            BrowserType.OPERA: ChromeParser(),  # Opera uses Chrome's bookmark format
+            BrowserType.VIVALDI: ChromeParser(),  # Vivaldi uses Chrome's bookmark format
+            BrowserType.DUCKDUCKGO: ChromeParser(),  # DuckDuckGo uses Chrome's bookmark format
+            BrowserType.YANDEX: ChromeParser()  # Yandex uses Chrome's bookmark format
         }
 
     def get_supported_browsers(self) -> Dict[BrowserType, bool]:
@@ -43,7 +47,7 @@ class BrowserBookmarks:
             self.root_folder = self.current_parser.parse(bookmark_paths[0])
             
             # For Chromium-based browsers, we need to handle the root structure
-            if browser in [BrowserType.CHROME, BrowserType.EDGE, BrowserType.BRAVE]:
+            if browser.is_chromium_based():
                 print(f"Initial root folder title: {self.root_folder.title}")
                 print(f"Initial root folder children: {[child.title for child in self.root_folder.children]}")
                 

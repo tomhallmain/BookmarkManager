@@ -4,11 +4,15 @@ A cross-browser bookmark management tool that helps you organize and find bookma
 
 ## Features
 - Load and manage bookmarks from multiple browsers:
-  - Safari
+  - Safari (macOS only)
   - Chrome
   - Firefox
-  - Edge
   - Brave
+  - Edge (untested)
+  - Opera (untested)
+  - Vivaldi (untested)
+  - DuckDuckGo (untested)
+  - Yandex (untested)
 - Search bookmarks across all browsers simultaneously
 - Find similar URLs using intelligent matching:
   - Exact matches
@@ -31,6 +35,14 @@ A cross-browser bookmark management tool that helps you organize and find bookma
 ```bash
 pip install -r requirements.txt
 ```
+
+## Browser Support
+The application supports both Chromium-based browsers (using a common JSON format) and browser-specific formats like Safari's plist and Firefox's SQLite database. While not every browser has been tested, the application is designed to be easily extensible.
+
+If you encounter issues with a specific browser:
+1. Check the browser's bookmark file location in the `PathManager` class
+2. Verify the bookmark file format in the `BrowserParsers` class
+3. Add or modify the appropriate paths and parsers as needed
 
 ## Usage
 Run the application:

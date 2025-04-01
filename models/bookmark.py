@@ -20,7 +20,23 @@ class BrowserType(Enum):
     FIREFOX = "Firefox"
     EDGE = "Edge"
     BRAVE = "Brave"
+    OPERA = "Opera"
+    VIVALDI = "Vivaldi"
+    DUCKDUCKGO = "DuckDuckGo"
+    YANDEX = "Yandex"
     UNKNOWN = "Unknown"
+
+    def is_chromium_based(self) -> bool:
+        """Check if the browser is Chromium-based"""
+        return self in {
+            BrowserType.CHROME,
+            BrowserType.EDGE,
+            BrowserType.BRAVE,
+            BrowserType.OPERA,
+            BrowserType.VIVALDI,
+            BrowserType.DUCKDUCKGO,
+            BrowserType.YANDEX
+        }
 
 @dataclass
 class Bookmark:

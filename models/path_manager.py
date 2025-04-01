@@ -17,21 +17,33 @@ class PathManager:
                 BrowserType.CHROME: self._home / 'Library/Application Support/Google/Chrome',
                 BrowserType.FIREFOX: self._home / 'Library/Application Support/Firefox/Profiles',
                 BrowserType.EDGE: self._home / 'Library/Application Support/Microsoft Edge',
-                BrowserType.BRAVE: self._home / 'Library/Application Support/BraveSoftware/Brave-Browser'
+                BrowserType.BRAVE: self._home / 'Library/Application Support/BraveSoftware/Brave-Browser',
+                BrowserType.OPERA: self._home / 'Library/Application Support/com.operasoftware.Opera',
+                BrowserType.VIVALDI: self._home / 'Library/Application Support/Vivaldi',
+                BrowserType.DUCKDUCKGO: self._home / 'Library/Application Support/DuckDuckGo',
+                BrowserType.YANDEX: self._home / 'Library/Application Support/Yandex/YandexBrowser'
             },
             'windows': {
                 BrowserType.SAFARI: None,  # Safari is not available on Windows
                 BrowserType.CHROME: self._home / 'AppData/Local/Google/Chrome/User Data',
                 BrowserType.FIREFOX: self._home / 'AppData/Roaming/Mozilla/Firefox/Profiles',
                 BrowserType.EDGE: self._home / 'AppData/Local/Microsoft/Edge/User Data',
-                BrowserType.BRAVE: self._home / 'AppData/Local/BraveSoftware/Brave-Browser/User Data'
+                BrowserType.BRAVE: self._home / 'AppData/Local/BraveSoftware/Brave-Browser/User Data',
+                BrowserType.OPERA: self._home / 'AppData/Roaming/Opera Software/Opera Stable',
+                BrowserType.VIVALDI: self._home / 'AppData/Local/Vivaldi/User Data',
+                BrowserType.DUCKDUCKGO: self._home / 'AppData/Local/DuckDuckGo/User Data',
+                BrowserType.YANDEX: self._home / 'AppData/Local/Yandex/YandexBrowser/User Data'
             },
             'linux': {
                 BrowserType.SAFARI: None,  # Safari is not available on Linux
                 BrowserType.CHROME: self._home / '.config/google-chrome',
                 BrowserType.FIREFOX: self._home / '.mozilla/firefox',
                 BrowserType.EDGE: self._home / '.config/microsoft-edge',
-                BrowserType.BRAVE: self._home / '.config/BraveSoftware/Brave-Browser'
+                BrowserType.BRAVE: self._home / '.config/BraveSoftware/Brave-Browser',
+                BrowserType.OPERA: self._home / '.config/opera',
+                BrowserType.VIVALDI: self._home / '.config/vivaldi',
+                BrowserType.DUCKDUCKGO: self._home / '.config/duckduckgo',
+                BrowserType.YANDEX: self._home / '.config/yandex-browser'
             }
         }
         
@@ -40,6 +52,10 @@ class PathManager:
             BrowserType.CHROME: 'Default',
             BrowserType.EDGE: 'Default',
             BrowserType.BRAVE: 'Default',
+            BrowserType.OPERA: 'Default',
+            BrowserType.VIVALDI: 'Default',
+            BrowserType.DUCKDUCKGO: 'Default',
+            BrowserType.YANDEX: 'Default',
             BrowserType.FIREFOX: '*.default*'  # Firefox uses wildcards for profile names
         }
         
@@ -49,6 +65,10 @@ class PathManager:
             BrowserType.CHROME: 'Bookmarks',
             BrowserType.EDGE: 'Bookmarks',
             BrowserType.BRAVE: 'Bookmarks',
+            BrowserType.OPERA: 'Bookmarks',
+            BrowserType.VIVALDI: 'Bookmarks',
+            BrowserType.DUCKDUCKGO: 'Bookmarks',
+            BrowserType.YANDEX: 'Bookmarks',
             BrowserType.FIREFOX: 'places.sqlite'
         }
 
