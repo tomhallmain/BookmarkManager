@@ -236,6 +236,33 @@ func getBookmarkItems(withList sublist: [Dictionary<String,Any>],
     return matchingItems
 }
 
+func searchRecursive(withList sublist: [Dictionary<String,Any>],
+                     withPattern pattern: String,
+                     withMatchList matchList: [Dictionary<String,Any>]) -> [Dictionary<String,Any>]
+{
+    var mutlist = matchList
+    var i = 0
+    while i < sublist.count {
+        if sublist[i]["Children"] != nil {
+            mutlist = searchRecursive(withList: sublist[i]["Children"] as! [Dictionary<String, Any>],
+                                      withPattern: pattern,
+                                      withMatchList: mutlist)
+        }
+        else if attrMatch(withItem: sublist[i], withAttr: "title", withPattern: pattern) {
+            mutlist.append(sublist[i])
+            let title = getItemTitle(withItem: sublist[i])
+            print("Found bookmark: " + title! + " adding to list.")
+        }
+        else if attrMatch(withItem: sublist[i], withAttr: "URLString", withPattern: pattern) {
+            mutlist.append(sublist[i])
+            let title = getItemTitle(withItem: sublist[i])
+            print("Found bookmark: " + title! + " adding to list.")
+        }
+        i += 1
+    }
+    return mutlist
+}
+
 func moveRecursive(withList sublist: [Dictionary<String,Any>],
                    withItem item: Dictionary<String,Any>, 
                    withItemID itemID: String,
@@ -475,7 +502,17 @@ func addBookmark(withPlist bookmarksPlist: Dictionary<String,Any>,
     let destFolderID = try getFolderIDByTitle(withPlist: bookmarksPlist, withTitle: destFolderTitle)
     bookmarks.append(newBookmark)
     return addBookmarksAtFolderID(withList: bookmarksPlist, destFolderID: destFolderID, withBookmarks: bookmarks)
-} 
+}
+
+func searchBookmarksByUrlOrTitle(withPlist bookmarksPlist: Dictionary<String,Any>,
+                                 withPattern pattern: String) -> [Dictionary<String,Any>]
+{
+    let initialList = bookmarksPlist["Children"] as! [Dictionary<String,Any>]
+    let initialMatchingBookmarks = [Dictionary<String,Any>]()
+    let allMatchingBookmarks = searchRecursive(withList: initialList, withPattern: pattern, withMatchList: initialMatchingBookmarks)
+    print("Total matching bookmarks: " + String(allMatchingBookmarks.count))
+    return allMatchingBookmarks
+}
 
 
 
@@ -495,7 +532,7 @@ if let bookmarks = getPlist(withPath: sourceListPath) {
     var bookmarkURL = ""
 
     if CommandLine.argc < 2 {
-        helpText = "swift ManageBookmarks.swift [add|move|remove]"
+        helpText = "swift ManageBookmarks.swift [add|move|remove|search]"
         errorQuit(errorText: "Missing required mode specification:\n" + helpText)
     }
     
@@ -533,6 +570,11 @@ if let bookmarks = getPlist(withPath: sourceListPath) {
                 errorQuit(errorText: "Missing regex title / URL pattern to find items to remove\n" + helpText)
             }
             pattern = arguments[2]
+        case "search":
+            if CommandLine.argc < 3 || arguments[2] == "" {
+                errorQuit(errorText: "Missing regex title / URL pattern to find items\n" + helpText)
+            }
+            pattern = arguments[2]
         default:
             throw "Unhandled mode specification, supported modes: [add|delete|move]"
     }
@@ -565,6 +607,14 @@ if let bookmarks = getPlist(withPath: sourceListPath) {
                 }
                 let encodableBookmarks = NSDictionary(dictionary: updatedBookmarks)
                 encodableBookmarks.write(toFile: sourceListPath, atomically: true)
+            case "search":
+                let foundBookmarks = searchBookmarksByUrlOrTitle(withPlist: bookmarks, withPattern: pattern)
+                for bookmark in foundBookmarks {
+                    for bookmarkKey in [String](bookmark.keys).sorted() {
+                        print(bookmarkKey)
+                    }
+                    exit(0)
+                }
             default:
                 throw "False guard"
         }
