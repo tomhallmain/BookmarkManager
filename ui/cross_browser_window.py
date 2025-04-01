@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QAction
 from models.bookmark_manager import BookmarkManager, BrowserType
 from models.bookmark import Bookmark
-from utils.utils import are_urls_similar
+from utils.utils import are_urls_similar, url_similarity
 
 class CrossBrowserWindow(QDialog):
     def __init__(self, parent=None):
@@ -191,7 +191,21 @@ class CrossBrowserWindow(QDialog):
             item.setText(0, bookmark.title)
             item.setText(1, bookmark.url)
             item.setText(2, bookmark.browser.value if bookmark.browser else "Unknown")
-            item.setText(3, f"{similarity:.2f}")
+            
+            # Determine similarity type and display descriptive text
+            sim_text = f"{similarity:.2f}"
+            if similarity == 1.0:
+                sim_text = "Exact"
+            elif similarity >= 0.9:
+                sim_text = "Word Match"
+            elif similarity >= 0.8:
+                sim_text = "Substring"
+            elif similarity >= 0.5:
+                sim_text = "Similar"
+            else:
+                sim_text = f"Low ({similarity:.2f})"
+                
+            item.setText(3, sim_text)
             item.setData(0, Qt.UserRole, bookmark)
     
     def show_search_context_menu(self, position):

@@ -4,6 +4,7 @@ from typing import List, Optional, Union, TYPE_CHECKING
 from enum import Enum
 import uuid
 import platform
+from utils.utils import normalize_url
 
 if TYPE_CHECKING:
     from .bookmark import Bookmark, BookmarkFolder
@@ -35,6 +36,11 @@ class Bookmark:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     browser: Optional[BrowserType] = None  # Inherited from parent folder
     host: Optional[str] = None  # Inherited from parent folder
+    normalized_url: str = field(init=False)  # Computed from url
+    
+    def __post_init__(self):
+        """Initialize computed fields after instance creation"""
+        self.normalized_url = normalize_url(self.url)
 
 @dataclass
 class BookmarkFolder:

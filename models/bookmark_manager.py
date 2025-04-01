@@ -3,7 +3,7 @@ from pathlib import Path
 from .bookmark import Bookmark, BookmarkFolder, BookmarkType, BrowserType
 from .browser_parsers import BrowserParser, SafariParser, ChromeParser, EdgeParser, FirefoxParser
 from .path_manager import PathManager
-from utils.utils import are_urls_similar
+from utils.utils import url_similarity
 
 class BrowserBookmarks:
     """Manages bookmarks for a single browser instance"""
@@ -226,14 +226,17 @@ class BookmarkManager:
             def search_folder(folder: BookmarkFolder):
                 for child in folder.children:
                     if isinstance(child, Bookmark):
-                        if are_urls_similar(child.url, url, threshold):
-                            results.append(child)
+                        similarity = url_similarity(url, child)
+                        if similarity >= threshold:
+                            results.append((similarity, child))
                     else:
                         search_folder(child)
             
             search_folder(instance.root_folder)
         
-        return results
+        # Sort results by similarity score in descending order
+        results.sort(key=lambda x: x[0], reverse=True)
+        return [bookmark for _, bookmark in results]
     
     def save_all_bookmarks(self) -> Dict[BrowserType, bool]:
         """Save bookmarks for all loaded browsers"""
