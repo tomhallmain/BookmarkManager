@@ -1,12 +1,13 @@
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QPushButton, QTreeView,
                              QLabel, QLineEdit, QMessageBox, QComboBox,
-                             QDialog, QFormLayout, QDialogButtonBox)
+                             QDialog, QFormLayout, QDialogButtonBox,
+                             QTreeWidget, QTreeWidgetItem, QMenu)
 from PySide6.QtCore import Qt, QModelIndex, QTimer
-from PySide6.QtGui import QStandardItemModel, QStandardItem
-from models.bookmark_manager import BookmarkManager
-from models.bookmark import BrowserType, Bookmark, BookmarkFolder
-from typing import Optional, Union, List
+from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QAction
+from models.bookmark_manager import BrowserBookmarks, BookmarkManager, BrowserType
+from models.bookmark import Bookmark, BookmarkFolder
+from ui.cross_browser_window import CrossBrowserWindow
 
 class BookmarkDialog(QDialog):
     """Dialog for adding/editing bookmarks"""
@@ -52,234 +53,214 @@ class BookmarkDialog(QDialog):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Bookmark Manager")
+        self.setWindowTitle("Safari Bookmark Manager")
         self.setMinimumSize(800, 600)
         
         # Initialize bookmark manager
-        self.bookmark_manager = BookmarkManager()
+        self.bookmark_manager = BrowserBookmarks()
         
-        # Create central widget and main layout
+        # Create central widget and layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QVBoxLayout(central_widget)
+        layout = QVBoxLayout(central_widget)
         
-        # Create browser selection area
-        browser_layout = QHBoxLayout()
-        browser_label = QLabel("Browser:")
+        # Create top toolbar
+        toolbar = QHBoxLayout()
+        
+        # Browser selection
         self.browser_combo = QComboBox()
-        self._populate_browser_combo()
-        browser_layout.addWidget(browser_label)
-        browser_layout.addWidget(self.browser_combo)
-        browser_layout.addStretch()
-        main_layout.addLayout(browser_layout)
+        self.browser_combo.currentIndexChanged.connect(self.on_browser_changed)
+        toolbar.addWidget(QLabel("Browser:"))
+        toolbar.addWidget(self.browser_combo)
         
-        # Create search area
-        search_layout = QHBoxLayout()
-        self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search bookmarks...")
-        self.search_input.textChanged.connect(self._on_search_text_changed)
-        search_layout.addWidget(self.search_input)
-        main_layout.addLayout(search_layout)
+        # Add cross-browser button
+        self.cross_browser_btn = QPushButton("Cross-Browser Operations")
+        self.cross_browser_btn.clicked.connect(self.open_cross_browser_window)
+        toolbar.addWidget(self.cross_browser_btn)
         
-        # Create bookmark tree view
-        self.bookmark_tree = QTreeView()
-        self.tree_model = QStandardItemModel()
-        self.tree_model.setHorizontalHeaderLabels(["Bookmarks"])
-        self.bookmark_tree.setModel(self.tree_model)
-        self.bookmark_tree.setSelectionMode(QTreeView.SelectionMode.SingleSelection)
-        self.bookmark_tree.setSelectionBehavior(QTreeView.SelectionBehavior.SelectRows)
-        main_layout.addWidget(self.bookmark_tree)
+        toolbar.addStretch()
+        layout.addLayout(toolbar)
         
-        # Create button area
-        button_layout = QHBoxLayout()
-        add_button = QPushButton("Add Bookmark")
-        add_button.clicked.connect(self.add_bookmark)
-        edit_button = QPushButton("Edit Bookmark")
-        edit_button.clicked.connect(self.edit_bookmark)
-        delete_button = QPushButton("Delete Bookmark")
-        delete_button.clicked.connect(self.delete_bookmark)
+        # Create bookmark tree
+        self.tree = QTreeWidget()
+        self.tree.setHeaderLabels(["Bookmarks"])
+        self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree.customContextMenuRequested.connect(self.show_context_menu)
+        layout.addWidget(self.tree)
         
-        button_layout.addWidget(add_button)
-        button_layout.addWidget(edit_button)
-        button_layout.addWidget(delete_button)
-        button_layout.addStretch()
-        main_layout.addLayout(button_layout)
+        # Load supported browsers
+        self.load_supported_browsers()
         
-        # Connect browser selection change
-        self.browser_combo.currentIndexChanged.connect(self.load_bookmarks)
-        
-        # Initialize search timer
-        self.search_timer = QTimer()
-        self.search_timer.setSingleShot(True)
-        self.search_timer.timeout.connect(self.search_bookmarks)
-        
-        # Load initial bookmarks if a browser is selected
+        # Load bookmarks for the first supported browser
         if self.browser_combo.count() > 0:
             self.load_bookmarks()
     
-    def _populate_browser_combo(self):
-        """Populate the browser combo box with supported browsers"""
+    def load_supported_browsers(self):
+        """Load supported browsers into the combo box"""
         supported_browsers = self.bookmark_manager.get_supported_browsers()
         for browser, is_supported in supported_browsers.items():
             if is_supported:
-                self.browser_combo.addItem(browser.name, browser)
+                self.browser_combo.addItem(browser.value, browser)
+    
+    def on_browser_changed(self, index: int):
+        """Handle browser selection change"""
+        if index >= 0:
+            self.load_bookmarks()
     
     def load_bookmarks(self):
-        """Load bookmarks from the selected browser"""
+        """Load bookmarks for the selected browser"""
         browser = self.browser_combo.currentData()
         if not browser:
             return
         
-        try:
-            if self.bookmark_manager.load_browser_bookmarks(browser):
-                self._update_tree_view()
+        if self.bookmark_manager.load_browser_bookmarks(browser):
+            self.tree.clear()
+            self.populate_tree(self.bookmark_manager.root_folder)
+        else:
+            QMessageBox.critical(self, "Error", f"Failed to load bookmarks for {browser.value}")
+    
+    def populate_tree(self, folder: BookmarkFolder, parent_item: QTreeWidgetItem = None):
+        """Populate the tree widget with bookmarks"""
+        if parent_item is None:
+            parent_item = self.tree
+        
+        for child in folder.children:
+            if isinstance(child, BookmarkFolder):
+                folder_item = QTreeWidgetItem(parent_item)
+                folder_item.setText(0, child.title)
+                folder_item.setData(0, Qt.UserRole, child.id)
+                folder_item.setIcon(0, QIcon("icons/folder.png"))
+                self.populate_tree(child, folder_item)
             else:
-                QMessageBox.warning(self, "Error", "Failed to load bookmarks")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error loading bookmarks: {str(e)}")
+                bookmark_item = QTreeWidgetItem(parent_item)
+                bookmark_item.setText(0, child.title)
+                bookmark_item.setData(0, Qt.UserRole, child.id)
+                bookmark_item.setIcon(0, QIcon("icons/bookmark.png"))
     
-    def _on_search_text_changed(self):
-        """Handle search text changes with debouncing"""
-        self.search_timer.start(300)  # Wait 300ms after last keystroke
-    
-    def search_bookmarks(self):
-        """Search bookmarks based on the search input"""
-        query = self.search_input.text().strip()
-        if not query:
-            self._update_tree_view()  # Reset to show all bookmarks
-            return
-        
-        results = self.bookmark_manager.search_bookmarks(query)
-        self._update_tree_view_with_results(results)
-    
-    def _update_tree_view_with_results(self, results: List[Bookmark]):
-        """Update the tree view to show search results"""
-        self.tree_model.clear()
-        if not results:
-            return
-        
-        # Create a temporary root folder for search results
-        root_item = QStandardItem("Search Results")
-        self.tree_model.appendRow(root_item)
-        
-        for bookmark in results:
-            item = QStandardItem(bookmark.title)
-            item.setData(bookmark, Qt.ItemDataRole.UserRole)
-            root_item.appendRow(item)
-        
-        self.bookmark_tree.expandAll()
-
-    def _update_tree_view(self):
-        """Update the tree view with the current bookmark structure"""
-        self.tree_model.clear()
-        if not self.bookmark_manager.root_folder:
-            return
-        
-        root_item = QStandardItem(self.bookmark_manager.root_folder.title)
-        root_item.setData(self.bookmark_manager.root_folder, Qt.ItemDataRole.UserRole)
-        self.tree_model.appendRow(root_item)
-        
-        def add_children(parent_item, folder):
-            for child in folder.children:
-                item = QStandardItem(child.title)
-                item.setData(child, Qt.ItemDataRole.UserRole)
-                parent_item.appendRow(item)
-                if isinstance(child, BookmarkFolder):
-                    add_children(item, child)
-        
-        add_children(root_item, self.bookmark_manager.root_folder)
-        self.bookmark_tree.expandAll()
-
-    def add_bookmark(self):
-        """Add a new bookmark"""
-        if not self.bookmark_manager.root_folder:
-            QMessageBox.warning(self, "Error", "Please select a browser first")
-            return
-        
-        dialog = BookmarkDialog(self)
-        if dialog.exec() == QDialog.Accepted:
-            data = dialog.get_bookmark_data()
-            bookmark = self.bookmark_manager.add_bookmark(
-                title=data['title'],
-                url=data['url']
-            )
-            if bookmark:
-                self._update_tree_view()
-                QMessageBox.information(self, "Success", "Bookmark added successfully")
-            else:
-                QMessageBox.warning(self, "Error", "Failed to add bookmark")
-    
-    def edit_bookmark(self):
-        """Edit the selected bookmark"""
-        if not self.bookmark_manager.root_folder:
-            QMessageBox.warning(self, "Error", "Please select a browser first")
-            return
-        
-        selected_bookmark = self._get_selected_bookmark()
-        
-        if not selected_bookmark:
-            QMessageBox.warning(self, "Error", "Please select a bookmark to edit")
-            return
-        
-        dialog = BookmarkDialog(self, selected_bookmark)
-        if dialog.exec() == QDialog.Accepted:
-            data = dialog.get_bookmark_data()
-            # TODO: Implement bookmark editing in BookmarkManager
-            QMessageBox.information(self, "Success", "Bookmark updated successfully")
-    
-    def delete_bookmark(self):
-        """Delete the selected bookmark"""
-        if not self.bookmark_manager.root_folder:
-            QMessageBox.warning(self, "Error", "Please select a browser first")
-            return
-        
-        selected_bookmark = self._get_selected_bookmark()
-        
-        if not selected_bookmark:
-            QMessageBox.warning(self, "Error", "Please select a bookmark to delete")
-            return
-        
-        reply = QMessageBox.question(
-            self,
-            "Confirm Delete",
-            "Are you sure you want to delete this bookmark?",
-            QMessageBox.Yes | QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            if self.bookmark_manager.delete_item(selected_bookmark.id):
-                self._update_tree_view()
-                QMessageBox.information(self, "Success", "Bookmark deleted successfully")
-            else:
-                QMessageBox.warning(self, "Error", "Failed to delete bookmark")
-
-    def _get_selected_bookmark(self) -> Optional[Union[Bookmark, BookmarkFolder]]:
-        """Get the currently selected bookmark from the tree view"""
-        print("Getting selected bookmark...")
-        
-        selection = self.bookmark_tree.selectedIndexes()
-        print(f"Selected indexes: {selection}")
-        if not selection:
-            print("No selection found")
-            return None
-            
-        index = selection[0]
-        print(f"First selected index: {index}")
-        if not index.isValid():
-            print("Selected index is not valid")
-            return None
-            
-        item = self.tree_model.itemFromIndex(index)
-        print(f"Item from index: {item}")
+    def show_context_menu(self, position):
+        """Show context menu for the selected item"""
+        item = self.tree.itemAt(position)
         if not item:
-            print("No item found for index")
-            return None
+            return
+        
+        menu = QMenu()
+        
+        # Get the bookmark/folder ID from the item
+        item_id = item.data(0, Qt.UserRole)
+        
+        # Find the corresponding bookmark/folder
+        bookmark_item = self.bookmark_manager.root_folder.find_child(item_id)
+        
+        if isinstance(bookmark_item, Bookmark):
+            # Bookmark actions
+            open_action = QAction("Open in Browser", self)
+            open_action.triggered.connect(lambda: self.open_bookmark(bookmark_item))
+            menu.addAction(open_action)
             
-        bookmark_data = item.data(Qt.ItemDataRole.UserRole)
-        print(f"Bookmark data: {bookmark_data}")
-        if not bookmark_data:
-            print("No bookmark data found in item")
-            return None
+            edit_action = QAction("Edit", self)
+            edit_action.triggered.connect(lambda: self.edit_bookmark(bookmark_item))
+            menu.addAction(edit_action)
             
-        print(f"Successfully retrieved bookmark: {bookmark_data.title}")
-        return bookmark_data 
+            delete_action = QAction("Delete", self)
+            delete_action.triggered.connect(lambda: self.delete_bookmark(item_id))
+            menu.addAction(delete_action)
+        else:
+            # Folder actions
+            add_bookmark_action = QAction("Add Bookmark", self)
+            add_bookmark_action.triggered.connect(lambda: self.add_bookmark(item_id))
+            menu.addAction(add_bookmark_action)
+            
+            add_folder_action = QAction("Add Folder", self)
+            add_folder_action.triggered.connect(lambda: self.add_folder(item_id))
+            menu.addAction(add_folder_action)
+            
+            delete_action = QAction("Delete", self)
+            delete_action.triggered.connect(lambda: self.delete_bookmark(item_id))
+            menu.addAction(delete_action)
+        
+        menu.exec_(self.tree.mapToGlobal(position))
+    
+    def open_bookmark(self, bookmark: Bookmark):
+        """Open the bookmark in the default browser"""
+        import webbrowser
+        webbrowser.open(bookmark.url)
+    
+    def edit_bookmark(self, bookmark: Bookmark):
+        """Edit a bookmark's title and URL"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Edit Bookmark")
+        layout = QFormLayout(dialog)
+        
+        title_edit = QLineEdit(bookmark.title)
+        url_edit = QLineEdit(bookmark.url)
+        
+        layout.addRow("Title:", title_edit)
+        layout.addRow("URL:", url_edit)
+        
+        buttons = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        cancel_button = QPushButton("Cancel")
+        
+        ok_button.clicked.connect(dialog.accept)
+        cancel_button.clicked.connect(dialog.reject)
+        
+        buttons.addWidget(ok_button)
+        buttons.addWidget(cancel_button)
+        layout.addRow(buttons)
+        
+        if dialog.exec_() == QDialog.Accepted:
+            bookmark.title = title_edit.text()
+            bookmark.url = url_edit.text()
+            self.bookmark_manager.save_bookmarks()
+            self.load_bookmarks()
+    
+    def add_bookmark(self, parent_id: str = None):
+        """Add a new bookmark"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Add Bookmark")
+        layout = QFormLayout(dialog)
+        
+        title_edit = QLineEdit()
+        url_edit = QLineEdit()
+        
+        layout.addRow("Title:", title_edit)
+        layout.addRow("URL:", url_edit)
+        
+        buttons = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        cancel_button = QPushButton("Cancel")
+        
+        ok_button.clicked.connect(dialog.accept)
+        cancel_button.clicked.connect(dialog.reject)
+        
+        buttons.addWidget(ok_button)
+        buttons.addWidget(cancel_button)
+        layout.addRow(buttons)
+        
+        if dialog.exec_() == QDialog.Accepted:
+            title = title_edit.text()
+            url = url_edit.text()
+            
+            if title and url:
+                self.bookmark_manager.add_bookmark(title, url, parent_id)
+                self.bookmark_manager.save_bookmarks()
+                self.load_bookmarks()
+    
+    def add_folder(self, parent_id: str = None):
+        """Add a new folder"""
+        title, ok = QInputDialog.getText(self, "Add Folder", "Enter folder name:")
+        if ok and title:
+            self.bookmark_manager.add_folder(title, parent_id)
+            self.bookmark_manager.save_bookmarks()
+            self.load_bookmarks()
+    
+    def delete_bookmark(self, item_id: str):
+        """Delete a bookmark or folder"""
+        if self.bookmark_manager.delete_item(item_id):
+            self.bookmark_manager.save_bookmarks()
+            self.load_bookmarks()
+    
+    def open_cross_browser_window(self):
+        """Open the cross-browser operations window"""
+        self.cross_browser_window = CrossBrowserWindow(self)
+        self.cross_browser_window.show() 

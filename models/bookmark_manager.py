@@ -3,9 +3,10 @@ from pathlib import Path
 from .bookmark import Bookmark, BookmarkFolder, BookmarkType, BrowserType
 from .browser_parsers import BrowserParser, SafariParser, ChromeParser, EdgeParser, FirefoxParser
 from .path_manager import PathManager
+from utils.utils import are_urls_similar
 
-class BookmarkManager:
-    """Manages bookmark operations and coordinates between UI and data models"""
+class BrowserBookmarks:
+    """Manages bookmarks for a single browser instance"""
     
     def __init__(self):
         self.current_browser = None
@@ -88,10 +89,7 @@ class BookmarkManager:
                 
             # Save to the main bookmarks file
             self.current_parser.save(bookmark_paths[0])
-            
-            # For Chromium-based browsers, we might want to handle saving to Other Bookmarks
-            # This would require separating bookmarks into the appropriate files
-            # For now, we'll just save to the main file
+
             return True
         except Exception as e:
             print(f"Error saving bookmarks: {e}")
@@ -183,4 +181,63 @@ class BookmarkManager:
                 return found.children
             return []
         
-        return self.root_folder.children 
+        return self.root_folder.children
+
+class BookmarkManager:
+    """Manages bookmarks across multiple browsers"""
+    
+    def __init__(self):
+        self._browser_instances: Dict[BrowserType, BrowserBookmarks] = {}
+        self._path_manager = PathManager()
+    
+    def load_all_browsers(self) -> Dict[BrowserType, bool]:
+        """Load bookmarks from all supported browsers"""
+        results = {}
+        supported_browsers = self._path_manager.get_supported_browsers()
+        
+        for browser, is_supported in supported_browsers.items():
+            if is_supported:
+                instance = BrowserBookmarks()
+                success = instance.load_browser_bookmarks(browser)
+                if success:
+                    self._browser_instances[browser] = instance
+                results[browser] = success
+        
+        return results
+    
+    def get_browser_instance(self, browser: BrowserType) -> Optional[BrowserBookmarks]:
+        """Get the BrowserBookmarks instance for a specific browser"""
+        return self._browser_instances.get(browser)
+    
+    def search_all_bookmarks(self, query: str) -> List[Bookmark]:
+        """Search for bookmarks across all loaded browsers"""
+        results = []
+        for instance in self._browser_instances.values():
+            results.extend(instance.search_bookmarks(query))
+        return results
+    
+    def find_similar_bookmarks(self, url: str, threshold: float = 0.8) -> List[Bookmark]:
+        """Find bookmarks with similar URLs across all browsers"""
+        results = []
+        for instance in self._browser_instances.values():
+            if not instance.root_folder:
+                continue
+            
+            def search_folder(folder: BookmarkFolder):
+                for child in folder.children:
+                    if isinstance(child, Bookmark):
+                        if are_urls_similar(child.url, url, threshold):
+                            results.append(child)
+                    else:
+                        search_folder(child)
+            
+            search_folder(instance.root_folder)
+        
+        return results
+    
+    def save_all_bookmarks(self) -> Dict[BrowserType, bool]:
+        """Save bookmarks for all loaded browsers"""
+        results = {}
+        for browser, instance in self._browser_instances.items():
+            results[browser] = instance.save_bookmarks()
+        return results 
