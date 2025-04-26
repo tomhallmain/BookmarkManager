@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Callable
 import asyncio
 
 from zeroconf import ServiceBrowser, Zeroconf, ServiceListener, ServiceInfo
@@ -8,13 +8,15 @@ import socket
 # from nacl.encoding import Base64Encoder
 
 from utils.utils import logger
+from models.network.network_events import ServiceDiscoveredEvent
 
 
-class BookmarkManagerListener(ServiceListener):
-    def __init__(self):
+class NetworkServiceListener(ServiceListener):
+    def __init__(self, discovery_handler: Callable[[ServiceDiscoveredEvent], None]):
         self.services: Dict[str, Dict] = {}
         self.last_seen: Dict[str, datetime] = {}  # name -> last seen timestamp
         self.stale_threshold = timedelta(minutes=5)
+        self.discovery_handler = discovery_handler
 
     def add_service(self, zeroconf, type, name):
         try:
@@ -30,6 +32,16 @@ class BookmarkManagerListener(ServiceListener):
                 }
                 self.services[name] = properties
                 self.last_seen[name] = datetime.now()
+                
+                # Create and emit discovery event
+                event = ServiceDiscoveredEvent(
+                    name=name,
+                    address=address,
+                    port=info.port,
+                    properties={k.decode(): v.decode() for k, v in info.properties.items()}
+                )
+                self.discovery_handler(event)
+                
                 logger.info(f"Discovered service: {name} at {address}", browser="ServiceBrowser")
         except Exception as e:
             logger.error(f"Error adding service {name}: {e}", browser="ServiceBrowser")
@@ -69,9 +81,22 @@ class ServiceBrowser:
     def __init__(self):
         self.services: Dict[str, Dict] = {}
         self.zeroconf = Zeroconf()
-        self.listener = BookmarkManagerListener()
+        self._discovery_handlers: List[Callable[[ServiceDiscoveredEvent], None]] = []
         self._cleanup_task = None
         self._is_running = False
+        self.listener = None  # Initialize listener as None
+
+    def add_discovery_handler(self, handler: Callable[[ServiceDiscoveredEvent], None]):
+        """Add a handler for service discovery events"""
+        self._discovery_handlers.append(handler)
+
+    def _notify_discovery(self, event: ServiceDiscoveredEvent):
+        """Notify all registered handlers of a service discovery event"""
+        for handler in self._discovery_handlers:
+            try:
+                handler(event)
+            except Exception as e:
+                logger.error(f"Error in service discovery handler: {e}", browser="ServiceBrowser")
 
     async def start(self):
         """Start the service browser and its background tasks."""
@@ -91,7 +116,8 @@ class ServiceBrowser:
         """Periodically clean up stale services."""
         while self._is_running:
             try:
-                self.listener.cleanup_stale_services()
+                if self.listener:  # Check if listener exists
+                    self.listener.cleanup_stale_services()
                 await asyncio.sleep(60)  # Check every minute
             except Exception as e:
                 logger.error(f"Error in cleanup task: {e}", browser="ServiceBrowser")
@@ -118,6 +144,7 @@ class ServiceBrowser:
     async def start_browser(self):
         """Start browsing for services."""
         try:
+            self.listener = NetworkServiceListener(self._notify_discovery)
             self.zeroconf.add_service_listener("_bookmarkmanager._tcp.local.", self.listener)
             logger.info("Service browser started", browser="ServiceBrowser")
         except Exception as e:
@@ -136,11 +163,15 @@ class ServiceBrowser:
 
     def get_available_services(self) -> List[Dict[str, Any]]:
         """Get list of available services."""
+        if not self.listener:
+            return []
         return list(self.listener.services.values())
 
     def get_service_by_name(self, name: str) -> Optional[Dict]:
         """Get service information by name."""
         try:
+            if not self.listener:
+                return None
             return self.listener.services.get(name)
         except Exception as e:
             logger.error(f"Error getting service {name}: {e}", browser="ServiceBrowser")

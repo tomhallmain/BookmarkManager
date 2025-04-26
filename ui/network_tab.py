@@ -7,13 +7,14 @@ from PySide6.QtCore import Qt, QTimer, Signal
 from models.network.service_browser import ServiceBrowser
 from models.network.network_client import NetworkClient
 from models.network.network_handler import NetworkHandler
+from models.network.network_connection_status import NetworkConnectionStatus
+from models.network.network_events import ServiceDiscoveredEvent, ConnectionStatusEvent
 import asyncio
 from typing import List, Dict
 import threading
 from datetime import datetime
 from models.bookmark import Bookmark
 from models.browser_bookmarks import BrowserBookmarks
-
 
 from utils.utils import logger
 
@@ -26,6 +27,14 @@ class NetworkTab(QWidget):
         self.bookmark_manager = bookmark_manager
         self.network_client = NetworkClient()
         self.service_browser = ServiceBrowser()
+        self.connection_status = NetworkConnectionStatus()
+        
+        # Connect network handler events
+        self.network_handler.add_service_discovered_handler(self.handle_service_discovered)
+        self.network_handler.add_connection_status_handler(self.handle_connection_status)
+        
+        # Connect service browser events
+        self.service_browser.add_discovery_handler(self.handle_service_discovered)
         
         # Start service browser in a separate thread
         self.browser_thread = threading.Thread(target=self._run_browser)
@@ -150,11 +159,20 @@ class NetworkTab(QWidget):
         try:
             port = int(port) if port else 8765
             self.network_client.connect(host, port)
-            self.network_status.emit(f"Connected to {host}:{port}", False)
+            self.connection_status.update_from_event(ConnectionStatusEvent(
+                is_connected=True,
+                service_info={
+                    'name': host,
+                    'address': f"{host}:{port}"
+                }
+            ))
             self.load_bookmarks()
         except Exception as e:
             QMessageBox.critical(self, "Connection Error", str(e))
-            self.network_status.emit("Connection failed", True)
+            self.connection_status.update_from_event(ConnectionStatusEvent(
+                is_connected=False,
+                error_message="Connection failed"
+            ))
 
     def connect_to_instance(self):
         selected = self.instance_list.currentItem()
@@ -165,11 +183,17 @@ class NetworkTab(QWidget):
         service = selected.data(Qt.UserRole)
         try:
             self.network_client.connect(service['address'], service['port'])
-            self.network_status.emit(f"Connected to {service['name']}", False)
+            self.connection_status.update_from_event(ConnectionStatusEvent(
+                is_connected=True,
+                service_info=service
+            ))
             self.load_bookmarks()
         except Exception as e:
             QMessageBox.critical(self, "Connection Error", str(e))
-            self.network_status.emit("Connection failed", True)
+            self.connection_status.update_from_event(ConnectionStatusEvent(
+                is_connected=False,
+                error_message="Connection failed"
+            ))
 
     def load_bookmarks(self):
         self.bookmark_list.clear()
@@ -304,8 +328,25 @@ class NetworkTab(QWidget):
         )
 
     def handle_connection_lost(self):
-        self.network_status.emit("Connection lost", True)
+        self.connection_status.update_from_event(ConnectionStatusEvent(
+            is_connected=False,
+            error_message="Connection lost"
+        ))
         QMessageBox.warning(self, "Connection Lost", "The connection to the remote instance was lost")
+
+    def handle_service_discovered(self, event: ServiceDiscoveredEvent):
+        """Handle a discovered service event"""
+        self.connection_status.update_from_service_discovery(event)
+        self.network_status.emit(self.connection_status.get_status_message(), False)
+
+    def handle_connection_status(self, event: ConnectionStatusEvent):
+        """Handle a connection status event"""
+        self.connection_status.update_from_event(event)
+        self.network_status.emit(self.connection_status.get_status_message(), bool(event.error_message))
+
+    def get_connection_status(self) -> NetworkConnectionStatus:
+        """Get the network connection status object"""
+        return self.connection_status
 
     def closeEvent(self, event):
         self.service_browser.stop_discovery()

@@ -5,8 +5,7 @@ import hmac
 import hashlib
 import json
 import socket
-from typing import Dict, List
-
+from typing import Dict, List, Callable
 
 from nacl.public import PrivateKey, PublicKey, Box
 from nacl.encoding import Base64Encoder
@@ -15,6 +14,7 @@ import websockets
 from zeroconf import ServiceInfo, Zeroconf
 
 from utils.utils import logger
+from models.network.network_events import ServiceDiscoveredEvent, ConnectionStatusEvent
 
 class NetworkHandler:
     def __init__(self, port: int = 8765):
@@ -26,6 +26,10 @@ class NetworkHandler:
         self.connection_states: Dict[str, Dict] = {}  # address -> state info
         self.zeroconf = Zeroconf()
         self.service_info = None
+        
+        # Event handlers
+        self._service_discovered_handlers: List[Callable[[ServiceDiscoveredEvent], None]] = []
+        self._connection_status_handlers: List[Callable[[ConnectionStatusEvent], None]] = []
         
         # Security settings
         self.max_connections = 10  # Maximum concurrent connections
@@ -43,6 +47,30 @@ class NetworkHandler:
         self._setup_service_discovery()
         self._cleanup_tasks = []
         self._is_running = False
+
+    def add_service_discovered_handler(self, handler: Callable[[ServiceDiscoveredEvent], None]):
+        """Add a handler for service discovery events"""
+        self._service_discovered_handlers.append(handler)
+
+    def add_connection_status_handler(self, handler: Callable[[ConnectionStatusEvent], None]):
+        """Add a handler for connection status events"""
+        self._connection_status_handlers.append(handler)
+
+    def _notify_service_discovered(self, event: ServiceDiscoveredEvent):
+        """Notify all registered handlers of a service discovery event"""
+        for handler in self._service_discovered_handlers:
+            try:
+                handler(event)
+            except Exception as e:
+                logger.error(f"Error in service discovery handler: {e}", browser="NetworkHandler")
+
+    def _notify_connection_status(self, event: ConnectionStatusEvent):
+        """Notify all registered handlers of a connection status event"""
+        for handler in self._connection_status_handlers:
+            try:
+                handler(event)
+            except Exception as e:
+                logger.error(f"Error in connection status handler: {e}", browser="NetworkHandler")
 
     async def start(self):
         """Start the network handler and its background tasks."""

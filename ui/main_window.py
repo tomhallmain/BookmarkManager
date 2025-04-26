@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         status_layout = QHBoxLayout()
         
         # Main status label
-        self.status_label = QLabel()
+        self.status_label = QLabel("Ready")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setStyleSheet("""
             color: green;
@@ -347,8 +347,11 @@ class MainWindow(QMainWindow):
         """)
         # Make sure the label is visible
         self.status_label.show()
-        # Clear the status after 5 seconds
-        QTimer.singleShot(5000, lambda: self.status_label.setText(""))
+        
+        # Only clear temporary status messages
+        if message != "Ready":
+            # Clear the status after 5 seconds
+            QTimer.singleShot(5000, lambda: self.show_status("Ready", False))
 
     def show_network_status(self, message: str, is_error: bool = False):
         """Show a network status message in the network status label"""
@@ -359,14 +362,33 @@ class MainWindow(QMainWindow):
             
         logger.debug(f"Showing network status: {message} (error: {is_error})")
         self.network_status_label.setText(f"Network: {message}")
+        
+        # Set color based on status
+        if is_error:
+            color = "red"
+        elif message == "Not connected":
+            color = "gray"
+        else:
+            color = "green"
+            
         self.network_status_label.setStyleSheet(f"""
-            color: {'red' if is_error else 'green'};
+            color: {color};
             background-color: #f0f0f0;
             padding: 5px;
             border-radius: 3px;
             margin: 5px;
         """)
         self.network_status_label.show()
+        
+        # Only clear temporary network status messages
+        if message != "Not connected":
+            # Clear the status after 5 seconds
+            QTimer.singleShot(5000, lambda: self.show_network_status("Not connected", False))
+
+    def handle_service_discovered(self, service_info: dict):
+        """Handle service discovery events"""
+        message = f"Discovered service: {service_info['name']} at {service_info['address']}"
+        self.show_network_status(message, False)
 
     def emit_status(self, message: str, is_error: bool = False):
         """Emit a status message that will be shown in the status label"""
