@@ -25,6 +25,8 @@ A cross-browser bookmark management tool that helps you organize and find bookma
   - Adjustable similarity threshold
   - Context menu for quick bookmark actions
   - Resizable columns for better visibility
+- Network sharing with end-to-end encryption and automatic discovery
+  - Includes protection against DDoS, message tampering, and session hijacking
 
 ## Requirements
 - Python 3.6+
@@ -53,6 +55,21 @@ python main.py
 The application will automatically detect and load bookmarks from supported browsers installed on your system. Use the tabs to:
 1. Search across all browsers
 2. Find similar URLs to detect duplicates or related bookmarks
+3. Share bookmarks with other computers
+
+## Network Sharing
+To share bookmarks with other computers:
+1. Run BookmarkManager on each computer
+2. In the Network tab:
+   - For computers on the same network:
+     - Click "Refresh" to see available instances
+     - Select an instance and click "Connect"
+   - For computers on different networks:
+     - Enter the remote computer's IP address or hostname
+     - Enter the port (default: 8765)
+     - Click "Connect"
+3. Once connected, select bookmarks to share
+4. Click "Share Bookmarks" to send them
 
 ## Note
 Some browsers may require the application to be closed before changes to bookmarks can be saved.

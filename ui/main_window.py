@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QPushButton, QTreeView,
                              QLabel, QLineEdit, QMessageBox, QComboBox,
                              QDialog, QFormLayout, QDialogButtonBox,
-                             QTreeWidget, QTreeWidgetItem, QMenu)
+                             QTreeWidget, QTreeWidgetItem, QMenu, QTabWidget)
 from PySide6.QtCore import Qt, QModelIndex, QTimer
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QAction
 
@@ -10,6 +10,12 @@ from models.bookmark_manager import BrowserBookmarks
 from models.bookmark import Bookmark, BookmarkFolder
 from ui.cross_browser_window import CrossBrowserWindow
 from utils.utils import logger
+from ui.network_tab import NetworkTab
+from models.network.network_handler import NetworkHandler
+import asyncio
+import threading
+
+## TODO add a way to access bookmarks from other computers on the same network or via HFS etc
 
 class BookmarkDialog(QDialog):
     """Dialog for adding/editing bookmarks"""
@@ -55,49 +61,43 @@ class BookmarkDialog(QDialog):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Safari Bookmark Manager")
-        self.setMinimumSize(800, 600)
+        self.setWindowTitle("BookmarkManager")
+        self.setGeometry(100, 100, 800, 600)
         
-        # Initialize bookmark manager
-        self.bookmark_manager = BrowserBookmarks()
+        # Initialize network components
+        self.network_handler = NetworkHandler()
+        self.network_tab = NetworkTab()
         
-        # Create central widget and layout
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+        # Start network server in a separate thread
+        self.server_thread = threading.Thread(target=self._run_server)
+        self.server_thread.daemon = True
+        self.server_thread.start()
         
-        # Create top toolbar
-        toolbar = QHBoxLayout()
+        self.setup_ui()
+
+    def setup_ui(self):
+        # Create tab widget
+        tab_widget = QTabWidget()
         
-        # Browser selection
-        self.browser_combo = QComboBox()
-        self.browser_combo.currentIndexChanged.connect(self.on_browser_changed)
-        toolbar.addWidget(QLabel("Browser:"))
-        toolbar.addWidget(self.browser_combo)
+        # Add network tab
+        tab_widget.addTab(self.network_tab, "Network")
         
-        # Add refresh button
-        self.refresh_btn = QPushButton("Refresh")
-        self.refresh_btn.clicked.connect(self.refresh_bookmarks)
-        toolbar.addWidget(self.refresh_btn)
+        # Add other tabs here...
         
-        # Add cross-browser button
-        self.cross_browser_btn = QPushButton("Cross-Browser Operations")
-        self.cross_browser_btn.clicked.connect(self.open_cross_browser_window)
-        toolbar.addWidget(self.cross_browser_btn)
-        
-        toolbar.addStretch()
-        layout.addLayout(toolbar)
-        
-        # Create bookmark tree
-        self.tree = QTreeWidget()
-        self.tree.setHeaderLabels(["Bookmarks"])
-        self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree.customContextMenuRequested.connect(self.show_context_menu)
-        layout.addWidget(self.tree)
-        
-        # Load supported browsers and try to load bookmarks
-        self.load_supported_browsers()
-    
+        self.setCentralWidget(tab_widget)
+
+    def _run_server(self):
+        """Run the network server in a separate thread."""
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.network_handler.start_server())
+
+    def closeEvent(self, event):
+        """Clean up resources when closing the window."""
+        self.network_tab.cleanup()
+        self.network_handler.cleanup()
+        event.accept()
+
     def load_supported_browsers(self):
         """Load supported browsers into the combo box, only showing those with valid paths"""
         logger.info("Loading supported browsers")

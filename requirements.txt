@@ -1,2 +1,5 @@
-PySide6>=6.6.1
+PySide6>=6.4.0
 aiosqlite>=0.17.0
+websockets>=11.0.3
+pynacl>=1.5.0
+zeroconf>=0.38.7
