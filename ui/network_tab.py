@@ -9,18 +9,42 @@ from models.network.network_handler import NetworkHandler
 from zeroconf import ServiceInfo
 import asyncio
 from typing import List, Dict
+import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 class NetworkTab(QWidget):
-    def __init__(self, network_handler: NetworkHandler, parent=None):
-        super().__init__(parent)
+    def __init__(self, network_handler: NetworkHandler):
+        super().__init__()
         self.network_handler = network_handler
         self.network_client = NetworkClient()
         self.service_browser = ServiceBrowser()
+        
+        # Start service browser in a separate thread
+        self.browser_thread = threading.Thread(target=self._run_browser)
+        self.browser_thread.daemon = True
+        self.browser_thread.start()
+        
         self.connected_peers: Dict[str, str] = {}  # name -> address
         self.setup_ui()
         self.setup_timer()
-        self.setup_connections()
         self.refresh_instances()
+
+    def _run_browser(self):
+        """Run the service browser in a separate thread."""
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(self.service_browser.start())
+        except Exception as e:
+            logger.error(f"Error starting service browser: {e}", browser="NetworkTab")
+        finally:
+            loop.close()
+
+    async def _cleanup_browser(self):
+        """Clean up service browser resources."""
+        await self.service_browser.stop()
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
@@ -83,27 +107,14 @@ class NetworkTab(QWidget):
         self.timer.timeout.connect(self.refresh_instances)
         self.timer.start(5000)  # Refresh every 5 seconds
 
-    def setup_connections(self):
-        self.service_browser.service_added.connect(self.add_instance)
-        self.service_browser.service_removed.connect(self.remove_instance)
-        self.network_client.connection_lost.connect(self.handle_connection_lost)
-        self.network_client.bookmarks_received.connect(self.handle_bookmarks_received)
-
     def refresh_instances(self):
+        """Refresh the list of available instances."""
         self.instance_list.clear()
-        self.service_browser.start_browsing()
-
-    def add_instance(self, name: str, info: ServiceInfo):
-        item = QListWidgetItem(f"{name} ({info.address})")
-        item.setData(Qt.UserRole, info)
-        self.instance_list.addItem(item)
-
-    def remove_instance(self, name: str):
-        for i in range(self.instance_list.count()):
-            item = self.instance_list.item(i)
-            if item.text().startswith(name):
-                self.instance_list.takeItem(i)
-                break
+        services = self.service_browser.get_available_services()
+        for service in services:
+            item = QListWidgetItem(f"{service['name']} ({service['address']}:{service['port']})")
+            item.setData(Qt.UserRole, service)
+            self.instance_list.addItem(item)
 
     def connect_manual(self):
         host = self.host_input.text().strip()
@@ -128,10 +139,10 @@ class NetworkTab(QWidget):
             QMessageBox.warning(self, "Error", "Please select an instance to connect to")
             return
             
-        info = selected.data(Qt.UserRole)
+        service = selected.data(Qt.UserRole)
         try:
-            self.network_client.connect(info.address, info.port)
-            self.status_label.setText(f"Connected to {info.name}")
+            self.network_client.connect(service['address'], service['port'])
+            self.status_label.setText(f"Connected to {service['name']}")
             self.load_bookmarks()
         except Exception as e:
             QMessageBox.critical(self, "Connection Error", str(e))
@@ -168,11 +179,21 @@ class NetworkTab(QWidget):
         pass
 
     def closeEvent(self, event):
-        self.service_browser.stop_browsing()
+        self.service_browser.stop_discovery()
         self.network_client.disconnect()
         super().closeEvent(event)
 
     def cleanup(self):
+        """Clean up resources."""
+        # Create a new event loop for cleanup
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(self._cleanup_browser())
+        except Exception as e:
+            logger.error(f"Error during browser cleanup: {e}", browser="NetworkTab")
+        finally:
+            loop.close()
+
         self.timer.stop()
-        self.service_browser.cleanup()
-        asyncio.get_event_loop().run_until_complete(self.network_client.cleanup()) 
+        self.network_client.cleanup() 

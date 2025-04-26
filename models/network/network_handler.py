@@ -41,33 +41,29 @@ class NetworkHandler:
         self.blacklist_duration = timedelta(minutes=30)
         
         self._setup_service_discovery()
-        self._start_cleanup_task()
-        self._start_security_cleanup_task()
+        self._cleanup_tasks = []
+        self._is_running = False
 
-    def _setup_service_discovery(self):
-        """Set up Zeroconf service discovery for the application."""
-        try:
-            desc = {'version': '1.0', 'public_key': self.public_key.encode(Base64Encoder).decode()}
-            self.service_info = ServiceInfo(
-                "_bookmarkmanager._tcp.local.",
-                "BookmarkManager._bookmarkmanager._tcp.local.",
-                addresses=[socket.inet_aton(socket.gethostbyname(socket.gethostname()))],
-                port=self.port,
-                properties=desc,
-            )
-            self.zeroconf.register_service(self.service_info)
-            logger.info("Service discovery setup complete", browser="NetworkHandler")
-        except Exception as e:
-            logger.error(f"Failed to setup service discovery: {e}", browser="NetworkHandler")
-            raise
+    async def start(self):
+        """Start the network handler and its background tasks."""
+        if self._is_running:
+            return
+        
+        self._is_running = True
+        self._start_cleanup_tasks()
+        await self.start_server()
 
-    def _start_cleanup_task(self):
-        """Start background task to clean up stale connections."""
-        asyncio.create_task(self._cleanup_stale_connections())
+    def _start_cleanup_tasks(self):
+        """Start background cleanup tasks."""
+        loop = asyncio.get_event_loop()
+        self._cleanup_tasks = [
+            loop.create_task(self._cleanup_stale_connections()),
+            loop.create_task(self._cleanup_security_data())
+        ]
 
     async def _cleanup_stale_connections(self):
         """Periodically clean up stale connections."""
-        while True:
+        while self._is_running:
             try:
                 now = datetime.now()
                 stale_threshold = timedelta(minutes=5)
@@ -85,9 +81,9 @@ class NetworkHandler:
                 logger.error(f"Error in cleanup task: {e}", browser="NetworkHandler")
                 await asyncio.sleep(60)
 
-    async def _start_security_cleanup_task(self):
-        """Start background task to clean up security-related data."""
-        while True:
+    async def _cleanup_security_data(self):
+        """Clean up security-related data."""
+        while self._is_running:
             try:
                 now = datetime.now()
                 # Clean up old connection attempts
@@ -104,6 +100,40 @@ class NetworkHandler:
             except Exception as e:
                 logger.error(f"Error in security cleanup task: {e}", browser="NetworkHandler")
                 await asyncio.sleep(60)
+
+    async def stop(self):
+        """Stop the network handler and its background tasks."""
+        if not self._is_running:
+            return
+        
+        self._is_running = False
+        
+        # Cancel all cleanup tasks
+        for task in self._cleanup_tasks:
+            task.cancel()
+        
+        # Wait for tasks to complete
+        await asyncio.gather(*self._cleanup_tasks, return_exceptions=True)
+        
+        # Clean up resources
+        await self.cleanup()
+
+    def _setup_service_discovery(self):
+        """Set up Zeroconf service discovery for the application."""
+        try:
+            desc = {'version': '1.0', 'public_key': self.public_key.encode(Base64Encoder).decode()}
+            self.service_info = ServiceInfo(
+                "_bookmarkmanager._tcp.local.",
+                "BookmarkManager._bookmarkmanager._tcp.local.",
+                addresses=[socket.inet_aton(socket.gethostbyname(socket.gethostname()))],
+                port=self.port,
+                properties=desc,
+            )
+            self.zeroconf.register_service(self.service_info)
+            logger.info("Service discovery setup complete", browser="NetworkHandler")
+        except Exception as e:
+            logger.error(f"Failed to setup service discovery: {e}", browser="NetworkHandler")
+            raise
 
     async def start_server(self):
         """Start the WebSocket server with enhanced security."""

@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
+import asyncio
 
-from zeroconf import ServiceBrowser, Zeroconf, ServiceListener
+from zeroconf import ServiceBrowser, Zeroconf, ServiceListener, ServiceInfo
 import socket
 # from nacl.public import PublicKey
 # from nacl.encoding import Base64Encoder
@@ -63,21 +64,32 @@ class BookmarkManagerListener(ServiceListener):
             if name in self.last_seen:
                 del self.last_seen[name]
 
+
 class ServiceBrowser:
     def __init__(self):
+        self.services: Dict[str, Dict] = {}
         self.zeroconf = Zeroconf()
         self.listener = BookmarkManagerListener()
-        self._browser = None
+        self._cleanup_task = None
+        self._is_running = False
+
+    async def start(self):
+        """Start the service browser and its background tasks."""
+        if self._is_running:
+            return
+        
+        self._is_running = True
         self._start_cleanup_task()
+        await self.start_browser()
 
     def _start_cleanup_task(self):
-        """Start background task to clean up stale services."""
-        import asyncio
-        asyncio.create_task(self._cleanup_stale_services())
+        """Start background cleanup task."""
+        loop = asyncio.get_event_loop()
+        self._cleanup_task = loop.create_task(self._cleanup_stale_services())
 
     async def _cleanup_stale_services(self):
         """Periodically clean up stale services."""
-        while True:
+        while self._is_running:
             try:
                 self.listener.cleanup_stale_services()
                 await asyncio.sleep(60)  # Check every minute
@@ -85,59 +97,46 @@ class ServiceBrowser:
                 logger.error(f"Error in cleanup task: {e}", browser="ServiceBrowser")
                 await asyncio.sleep(60)
 
-    def start_discovery(self):
-        """Start discovering BookmarkManager services on the network."""
+    async def stop(self):
+        """Stop the service browser and its background tasks."""
+        if not self._is_running:
+            return
+        
+        self._is_running = False
+        
+        # Cancel cleanup task
+        if self._cleanup_task:
+            self._cleanup_task.cancel()
+            try:
+                await self._cleanup_task
+            except asyncio.CancelledError:
+                pass
+        
+        # Clean up resources
+        self.cleanup()
+
+    async def start_browser(self):
+        """Start browsing for services."""
         try:
-            self._browser = ServiceBrowser(
-                self.zeroconf,
-                "_bookmarkmanager._tcp.local.",
-                handlers=[self._on_service_state_change]
-            )
-            logger.info("Started service discovery", browser="ServiceBrowser")
+            self.zeroconf.add_service_listener("_bookmarkmanager._tcp.local.", self.listener)
+            logger.info("Service browser started", browser="ServiceBrowser")
         except Exception as e:
-            logger.error(f"Failed to start service discovery: {e}", browser="ServiceBrowser")
+            logger.error(f"Failed to start service browser: {e}", browser="ServiceBrowser")
             raise
 
-    def _on_service_state_change(self, zeroconf, service_type, name, state_change):
-        """Handle service state changes."""
-        try:
-            if state_change == "Added":
-                info = zeroconf.get_service_info(service_type, name)
-                if info:
-                    address = ".".join(map(str, info.addresses[0]))
-                    self.listener.services[address] = {
-                        'port': info.port,
-                        'properties': info.properties,
-                        'last_seen': info.last_seen
-                    }
-                    logger.info(f"Discovered service at {address}:{info.port}", browser="ServiceBrowser")
-            elif state_change == "Removed":
-                # Find and remove the service
-                for address, service in list(self.listener.services.items()):
-                    if service['port'] == info.port:
-                        del self.listener.services[address]
-                        logger.info(f"Service removed: {address}", browser="ServiceBrowser")
-                        break
-        except Exception as e:
-            logger.error(f"Error handling service state change: {e}", browser="ServiceBrowser")
+    def cleanup(self):
+        """Clean up resources."""
+        if self.listener:
+            try:
+                self.zeroconf.remove_service_listener(self.listener)
+            except Exception as e:
+                logger.error(f"Error removing service listener: {e}", browser="ServiceBrowser")
+        self.zeroconf.close()
+        logger.info("Service browser cleaned up", browser="ServiceBrowser")
 
-    def get_available_services(self) -> List[Dict]:
-        """Get list of available services with their details."""
-        try:
-            # Clean up stale services before returning
-            self.listener.cleanup_stale_services()
-            return [
-                {
-                    'address': address,
-                    'port': service['port'],
-                    'public_key': service['properties'].get(b'public_key', b'').decode(),
-                    'last_seen': service['last_seen']
-                }
-                for address, service in self.listener.services.items()
-            ]
-        except Exception as e:
-            logger.error(f"Error getting available services: {e}", browser="ServiceBrowser")
-            return []
+    def get_available_services(self) -> List[Dict[str, Any]]:
+        """Get list of available services."""
+        return list(self.listener.services.values())
 
     def get_service_by_name(self, name: str) -> Optional[Dict]:
         """Get service information by name."""
@@ -150,21 +149,10 @@ class ServiceBrowser:
     def stop_discovery(self):
         """Stop service discovery and clean up."""
         try:
-            if self._browser:
-                self._browser.cancel()
+            if self.listener:
+                self.zeroconf.remove_service_listener(self.listener)
             self.zeroconf.close()
-            self.listener.services.clear()
             logger.info("Service discovery stopped", browser="ServiceBrowser")
         except Exception as e:
             logger.error(f"Error stopping service discovery: {e}", browser="ServiceBrowser")
-            raise
-
-    def cleanup(self):
-        """Clean up resources."""
-        try:
-            if self._browser:
-                self._browser.cancel()
-            self.zeroconf.close()
-            logger.info("Service browser cleaned up", browser="ServiceBrowser")
-        except Exception as e:
-            logger.error(f"Error during cleanup: {e}", browser="ServiceBrowser") 
+            raise 

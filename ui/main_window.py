@@ -66,7 +66,7 @@ class MainWindow(QMainWindow):
         
         # Initialize network components
         self.network_handler = NetworkHandler()
-        self.network_tab = NetworkTab()
+        self.network_tab = NetworkTab(self.network_handler)
         
         # Start network server in a separate thread
         self.server_thread = threading.Thread(target=self._run_server)
@@ -90,12 +90,29 @@ class MainWindow(QMainWindow):
         """Run the network server in a separate thread."""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.network_handler.start_server())
+        try:
+            loop.run_until_complete(self.network_handler.start())
+        except Exception as e:
+            logger.error(f"Error starting network server: {e}", browser="MainWindow")
+        finally:
+            loop.close()
+
+    async def _cleanup_network(self):
+        """Clean up network resources."""
+        await self.network_handler.stop()
+        self.network_tab.cleanup()
 
     def closeEvent(self, event):
         """Clean up resources when closing the window."""
-        self.network_tab.cleanup()
-        self.network_handler.cleanup()
+        # Create a new event loop for cleanup
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(self._cleanup_network())
+        except Exception as e:
+            logger.error(f"Error during cleanup: {e}", browser="MainWindow")
+        finally:
+            loop.close()
         event.accept()
 
     def load_supported_browsers(self):
