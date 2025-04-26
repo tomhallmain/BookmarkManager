@@ -4,6 +4,7 @@ from .bookmark import Bookmark, BookmarkFolder, BookmarkType, BrowserType
 from .browser_parsers import BrowserParser, SafariParser, ChromeParser, EdgeParser, FirefoxParser
 from .path_manager import PathManager
 from utils.utils import url_similarity
+import os
 
 class BrowserBookmarks:
     """Manages bookmarks for a single browser instance"""
@@ -25,6 +26,60 @@ class BrowserBookmarks:
             BrowserType.DUCKDUCKGO: ChromeParser(),  # DuckDuckGo uses Chrome's bookmark format
             BrowserType.YANDEX: ChromeParser()  # Yandex uses Chrome's bookmark format
         }
+
+    def has_valid_bookmark_path(self, browser: BrowserType) -> bool:
+        """Check if the browser has a valid bookmark path that exists and is accessible"""
+        try:
+            bookmark_paths = self.path_manager.get_bookmark_paths(browser)
+            if not bookmark_paths:
+                print(f"No bookmark paths found for {browser.value}")
+                return False
+            
+            # Check if the main bookmark file exists and is accessible
+            main_path = Path(bookmark_paths[0])
+            if not main_path.exists():
+                print(f"Bookmark file not found for {browser.value} at {main_path}")
+                return False
+            
+            if not main_path.is_file():
+                print(f"Bookmark path is not a file for {browser.value} at {main_path}")
+                return False
+            
+            # Check if we have read access
+            if not os.access(main_path, os.R_OK):
+                print(f"No read access to bookmark file for {browser.value} at {main_path}")
+                return False
+            
+            # Try to load bookmarks to verify they can be read
+            if not self.load_browser_bookmarks(browser):
+                print(f"Failed to load bookmarks for {browser.value}")
+                return False
+            
+            # Check if there are any bookmarks
+            if not self.has_bookmarks():
+                print(f"No bookmarks found for {browser.value}")
+                return False
+            
+            return True
+        except Exception as e:
+            print(f"Error checking bookmark path for {browser.value}: {e}")
+            return False
+
+    def has_bookmarks(self) -> bool:
+        """Check if the current browser has any bookmarks"""
+        if not self.root_folder:
+            return False
+        
+        def count_bookmarks(folder: BookmarkFolder) -> int:
+            count = 0
+            for child in folder.children:
+                if isinstance(child, Bookmark):
+                    count += 1
+                elif isinstance(child, BookmarkFolder):
+                    count += count_bookmarks(child)
+            return count
+        
+        return count_bookmarks(self.root_folder) > 0
 
     def get_supported_browsers(self) -> Dict[BrowserType, bool]:
         """Get a dictionary of supported browsers for the current platform"""
