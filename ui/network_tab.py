@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QListWidget, QLabel, QMessageBox, QInputDialog, QGroupBox, QLineEdit
+    QListWidget, QListWidgetItem, QLabel, QMessageBox, 
+    QInputDialog, QGroupBox, QLineEdit
 )
 from PySide6.QtCore import Qt, QTimer
 from models.network.service_browser import ServiceBrowser

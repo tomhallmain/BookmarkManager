@@ -64,6 +64,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("BookmarkManager")
         self.setGeometry(100, 100, 800, 600)
         
+        # Initialize bookmark manager
+        self.bookmark_manager = BrowserBookmarks()
+        
         # Initialize network components
         self.network_handler = NetworkHandler()
         self.network_tab = NetworkTab(self.network_handler)
@@ -79,12 +82,37 @@ class MainWindow(QMainWindow):
         # Create tab widget
         tab_widget = QTabWidget()
         
-        # Add network tab
+        # Create main tab for bookmarks
+        main_tab = QWidget()
+        main_layout = QVBoxLayout(main_tab)
+        
+        # Browser selection
+        browser_layout = QHBoxLayout()
+        self.browser_combo = QComboBox()
+        self.browser_combo.currentIndexChanged.connect(self.on_browser_changed)
+        refresh_button = QPushButton("Refresh")
+        refresh_button.clicked.connect(self.refresh_bookmarks)
+        
+        browser_layout.addWidget(QLabel("Browser:"))
+        browser_layout.addWidget(self.browser_combo)
+        browser_layout.addWidget(refresh_button)
+        main_layout.addLayout(browser_layout)
+        
+        # Bookmark tree
+        self.tree = QTreeWidget()
+        self.tree.setHeaderLabel("Bookmarks")
+        self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree.customContextMenuRequested.connect(self.show_context_menu)
+        main_layout.addWidget(self.tree)
+        
+        # Add tabs
+        tab_widget.addTab(main_tab, "Bookmarks")
         tab_widget.addTab(self.network_tab, "Network")
         
-        # Add other tabs here...
-        
         self.setCentralWidget(tab_widget)
+        
+        # Load supported browsers
+        self.load_supported_browsers()
 
     def _run_server(self):
         """Run the network server in a separate thread."""
