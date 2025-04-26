@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QListWidget, QListWidgetItem, QLabel, QMessageBox, 
     QInputDialog, QGroupBox, QLineEdit, QCheckBox
 )
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, Signal
 from models.network.service_browser import ServiceBrowser
 from models.network.network_client import NetworkClient
 from models.network.network_handler import NetworkHandler
@@ -18,6 +18,8 @@ from models.browser_bookmarks import BrowserBookmarks
 from utils.utils import logger
 
 class NetworkTab(QWidget):
+    network_status = Signal(str, bool)  # message, is_error
+    
     def __init__(self, network_handler: NetworkHandler, bookmark_manager: BrowserBookmarks):
         super().__init__()
         self.network_handler = network_handler
@@ -148,11 +150,11 @@ class NetworkTab(QWidget):
         try:
             port = int(port) if port else 8765
             self.network_client.connect(host, port)
-            self.status_label.setText(f"Connected to {host}:{port}")
+            self.network_status.emit(f"Connected to {host}:{port}", False)
             self.load_bookmarks()
         except Exception as e:
             QMessageBox.critical(self, "Connection Error", str(e))
-            self.status_label.setText("Connection failed")
+            self.network_status.emit("Connection failed", True)
 
     def connect_to_instance(self):
         selected = self.instance_list.currentItem()
@@ -163,11 +165,11 @@ class NetworkTab(QWidget):
         service = selected.data(Qt.UserRole)
         try:
             self.network_client.connect(service['address'], service['port'])
-            self.status_label.setText(f"Connected to {service['name']}")
+            self.network_status.emit(f"Connected to {service['name']}", False)
             self.load_bookmarks()
         except Exception as e:
             QMessageBox.critical(self, "Connection Error", str(e))
-            self.status_label.setText("Connection failed")
+            self.network_status.emit("Connection failed", True)
 
     def load_bookmarks(self):
         self.bookmark_list.clear()
@@ -188,7 +190,7 @@ class NetworkTab(QWidget):
                 # Convert bookmarks to dict format for network transmission
                 bookmark_dicts = [self._bookmark_to_dict(b) for b in bookmarks]
                 self.network_client.send_bookmarks(bookmark_dicts)
-                self.status_label.setText("All bookmarks shared successfully")
+                self.network_status.emit("All bookmarks shared successfully", False)
             else:
                 # Share selected bookmarks (existing functionality)
                 selected_items = self.bookmark_list.selectedItems()
@@ -199,11 +201,11 @@ class NetworkTab(QWidget):
                 bookmarks = [item.data(Qt.UserRole) for item in selected_items]
                 bookmark_dicts = [self._bookmark_to_dict(b) for b in bookmarks]
                 self.network_client.send_bookmarks(bookmark_dicts)
-                self.status_label.setText("Selected bookmarks shared successfully")
+                self.network_status.emit("Selected bookmarks shared successfully", False)
                 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to share bookmarks: {e}")
-            self.status_label.setText("Failed to share bookmarks")
+            self.network_status.emit("Failed to share bookmarks", True)
 
     def sync_bookmarks(self):
         """Sync bookmarks with connected peers."""
@@ -220,11 +222,11 @@ class NetworkTab(QWidget):
             
             # Request remote bookmarks
             self.network_client.request_bookmarks()
-            self.status_label.setText("Sync initiated")
+            self.network_status.emit("Sync initiated", False)
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to sync bookmarks: {e}")
-            self.status_label.setText("Failed to sync bookmarks")
+            self.network_status.emit("Failed to sync bookmarks", True)
 
     def get_all_bookmarks(self) -> List[Bookmark]:
         """Get all bookmarks from the current browser."""
@@ -302,7 +304,7 @@ class NetworkTab(QWidget):
         )
 
     def handle_connection_lost(self):
-        self.status_label.setText("Connection lost")
+        self.network_status.emit("Connection lost", True)
         QMessageBox.warning(self, "Connection Lost", "The connection to the remote instance was lost")
 
     def closeEvent(self, event):

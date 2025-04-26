@@ -5,13 +5,13 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QTreeWidget, QTreeWidgetItem, QMenu, QTabWidget,
                              QInputDialog, QGroupBox, QSpinBox, QDoubleSpinBox,
                              QCheckBox)
-from PySide6.QtCore import Qt, QModelIndex, QTimer
+from PySide6.QtCore import Qt, QModelIndex, QTimer, Signal
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QAction
 
 from models.bookmark_manager import BookmarkManager
 from models.browser_bookmarks import BrowserBookmarks
 from models.bookmark import Bookmark, BookmarkFolder
-from ui.cross_browser_window import CrossBrowserWindow
+from ui.cross_browser_tab import CrossBrowserTab
 from utils.utils import logger
 from ui.network_tab import NetworkTab
 from ui.bookmark_tab import BookmarkTab
@@ -63,6 +63,9 @@ class BookmarkDialog(QDialog):
         }
 
 class MainWindow(QMainWindow):
+    # Define a signal for status messages
+    status_message = Signal(str, bool)  # message, is_error
+    
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Bookmark Manager")
@@ -79,17 +82,54 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
         
+        # Create status area at the top
+        status_layout = QHBoxLayout()
+        
+        # Main status label
+        self.status_label = QLabel()
+        self.status_label.setAlignment(Qt.AlignCenter)
+        self.status_label.setStyleSheet("""
+            color: green;
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 3px;
+            margin: 5px;
+        """)
+        self.status_label.setMinimumHeight(30)
+        
+        # Network status label
+        self.network_status_label = QLabel("Network: Not connected")
+        self.network_status_label.setAlignment(Qt.AlignCenter)
+        self.network_status_label.setStyleSheet("""
+            color: gray;
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 3px;
+            margin: 5px;
+        """)
+        self.network_status_label.setMinimumHeight(30)
+        
+        status_layout.addWidget(self.status_label)
+        status_layout.addWidget(self.network_status_label)
+        layout.addLayout(status_layout)
+        
         # Create tab widget
         self.tab_widget = QTabWidget()
         
-        # Create and add tabs
+        # Create tabs
         self.bookmark_tab = BookmarkTab(self.bookmark_manager)
         self.network_tab = NetworkTab(self.network_handler, self.bookmark_manager)
-        self.cross_browser_tab = CrossBrowserWindow(self.bookmark_manager)
+        self.cross_browser_tab = CrossBrowserTab(self.bookmark_manager)
         
+        # Add tabs
         self.tab_widget.addTab(self.bookmark_tab, "Bookmarks")
         self.tab_widget.addTab(self.network_tab, "Network")
         self.tab_widget.addTab(self.cross_browser_tab, "Cross-Browser")
+        
+        # Connect the status signals to the status labels
+        self.bookmark_tab.status_message.connect(self.show_status)
+        self.network_tab.network_status.connect(self.show_network_status)
+        self.cross_browser_tab.status_message.connect(self.show_status)
         
         layout.addWidget(self.tab_widget)
         
@@ -97,6 +137,12 @@ class MainWindow(QMainWindow):
         self.network_thread = threading.Thread(target=self._run_network_handler)
         self.network_thread.daemon = True
         self.network_thread.start()
+        
+        # Show initial loading status
+        self.show_status("Loading bookmarks...", False)
+        
+        # Load bookmarks after a short delay to ensure UI is ready
+        QTimer.singleShot(100, self.cross_browser_tab.load_all_browsers)
         
     def _run_network_handler(self):
         """Run the network handler in a separate thread"""
@@ -281,4 +327,47 @@ class MainWindow(QMainWindow):
     def open_cross_browser_window(self):
         """Open the cross-browser operations window"""
         self.cross_browser_window = CrossBrowserWindow(self)
-        self.cross_browser_window.show() 
+        self.cross_browser_window.show()
+
+    def show_status(self, message: str, is_error: bool = False):
+        """Show a status message in the status label"""
+        logger.debug(f"Showing status message: {message} (error: {is_error})")
+        # Ensure we're on the main thread
+        if threading.current_thread() is not threading.main_thread():
+            QTimer.singleShot(0, lambda: self.show_status(message, is_error))
+            return
+            
+        self.status_label.setText(message)
+        self.status_label.setStyleSheet(f"""
+            color: {'red' if is_error else 'green'};
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 3px;
+            margin: 5px;
+        """)
+        # Make sure the label is visible
+        self.status_label.show()
+        # Clear the status after 5 seconds
+        QTimer.singleShot(5000, lambda: self.status_label.setText(""))
+
+    def show_network_status(self, message: str, is_error: bool = False):
+        """Show a network status message in the network status label"""
+        # Ensure we're on the main thread
+        if threading.current_thread() is not threading.main_thread():
+            QTimer.singleShot(0, lambda: self.show_network_status(message, is_error))
+            return
+            
+        logger.debug(f"Showing network status: {message} (error: {is_error})")
+        self.network_status_label.setText(f"Network: {message}")
+        self.network_status_label.setStyleSheet(f"""
+            color: {'red' if is_error else 'green'};
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 3px;
+            margin: 5px;
+        """)
+        self.network_status_label.show()
+
+    def emit_status(self, message: str, is_error: bool = False):
+        """Emit a status message that will be shown in the status label"""
+        self.status_message.emit(message, is_error)
