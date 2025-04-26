@@ -93,15 +93,31 @@ class MainWindow(QMainWindow):
         
         layout.addWidget(self.tab_widget)
         
-        # Start network handler
-        self.network_handler.start()
+        # Start network handler in a separate thread
+        self.network_thread = threading.Thread(target=self._run_network_handler)
+        self.network_thread.daemon = True
+        self.network_thread.start()
         
+    def _run_network_handler(self):
+        """Run the network handler in a separate thread"""
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(self.network_handler.start())
+        except Exception as e:
+            logger.error(f"Error in network handler: {e}", browser="MainWindow")
+        finally:
+            loop.close()
+            
     def closeEvent(self, event):
         """Handle window close event"""
         logger.info("Main window closing, cleaning up resources")
         
-        # Stop network handler
-        self.network_handler.stop()
+        # Stop network handler in a separate thread
+        stop_thread = threading.Thread(target=self._stop_network_handler)
+        stop_thread.daemon = True
+        stop_thread.start()
+        stop_thread.join(timeout=5)  # Wait up to 5 seconds for cleanup
         
         # Only save bookmarks if they've been modified
         if self.bookmark_manager.is_modified:
@@ -109,33 +125,17 @@ class MainWindow(QMainWindow):
             self.bookmark_manager.save_all_bookmarks()
         
         event.accept()
-
-    def _run_server(self):
-        """Run the network server in a separate thread."""
+        
+    def _stop_network_handler(self):
+        """Stop the network handler in a separate thread"""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
-            loop.run_until_complete(self.network_handler.start())
+            loop.run_until_complete(self.network_handler.stop())
         except Exception as e:
-            logger.error(f"Error starting network server: {e}", browser="MainWindow")
+            logger.error(f"Error stopping network handler: {e}", browser="MainWindow")
         finally:
             loop.close()
-
-    def _cleanup_network_sync(self):
-        """Synchronous wrapper for network cleanup."""
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            loop.run_until_complete(self._cleanup_network_async())
-        except Exception as e:
-            logger.error(f"Error during cleanup: {e}", browser="MainWindow")
-        finally:
-            loop.close()
-
-    async def _cleanup_network_async(self):
-        """Asynchronous network cleanup."""
-        await self.network_handler.stop()
-        await self.network_tab._cleanup_browser()
 
     def populate_tree(self, folder: BookmarkFolder, parent_item: QTreeWidgetItem = None):
         """Populate the tree widget with bookmarks"""
