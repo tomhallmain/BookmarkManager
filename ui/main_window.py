@@ -73,6 +73,11 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(QLabel("Browser:"))
         toolbar.addWidget(self.browser_combo)
         
+        # Add refresh button
+        self.refresh_btn = QPushButton("Refresh")
+        self.refresh_btn.clicked.connect(self.refresh_bookmarks)
+        toolbar.addWidget(self.refresh_btn)
+        
         # Add cross-browser button
         self.cross_browser_btn = QPushButton("Cross-Browser Operations")
         self.cross_browser_btn.clicked.connect(self.open_cross_browser_window)
@@ -92,52 +97,68 @@ class MainWindow(QMainWindow):
         self.load_supported_browsers()
     
     def load_supported_browsers(self):
-        """Load supported browsers into the combo box, only showing those with valid paths and bookmarks"""
+        """Load supported browsers into the combo box, only showing those with valid paths"""
+        print("Loading supported browsers")
         supported_browsers = self.bookmark_manager.get_supported_browsers()
         available_browsers = []
         
         for browser, is_supported in supported_browsers.items():
             if is_supported and self.bookmark_manager.has_valid_bookmark_path(browser):
+                print(f"Adding {browser.value} to available browsers")
                 available_browsers.append(browser)
         
         if not available_browsers:
+            print("No available browsers found")
             QMessageBox.critical(self, "Error", "No browser bookmark paths were found")
             return
         
         for browser in available_browsers:
             self.browser_combo.addItem(browser.value, browser)
         
-        # Try to load bookmarks for the first available browser
-        if self.browser_combo.count() > 0:
-            self.load_bookmarks()
+        # Try to find a browser with bookmarks to start with
+        print("Looking for browser with bookmarks to start with")
+        for browser in available_browsers:
+            if self.bookmark_manager.load_browser_bookmarks(browser) and self.bookmark_manager.has_bookmarks():
+                print(f"Starting with {browser.value} as it has bookmarks")
+                self.browser_combo.setCurrentText(browser.value)
+                break
+        else:
+            # If no browser has bookmarks, just select the first one
+            print("No browser with bookmarks found, selecting first available browser")
+            self.browser_combo.setCurrentIndex(0)
+    
+    def refresh_bookmarks(self):
+        """Refresh bookmarks for the current browser"""
+        print("Refreshing bookmarks")
+        if self.bookmark_manager.refresh_bookmarks():
+            print("Successfully refreshed bookmarks, updating tree view")
+            self.tree.clear()
+            self.populate_tree(self.bookmark_manager.root_folder)
+        else:
+            print("Failed to refresh bookmarks")
+            QMessageBox.critical(self, "Error", "Failed to refresh bookmarks")
     
     def on_browser_changed(self, index: int):
         """Handle browser selection change"""
         if index >= 0:
+            print(f"Browser changed to index {index}")
             self.load_bookmarks()
     
     def load_bookmarks(self):
-        """Load bookmarks for the selected browser, trying next browser if current fails"""
+        """Load bookmarks for the selected browser"""
         browser = self.browser_combo.currentData()
         if not browser:
+            print("No browser selected")
             return
         
+        print(f"Loading bookmarks for {browser.value}")
         if self.bookmark_manager.load_browser_bookmarks(browser):
+            print(f"Successfully loaded bookmarks for {browser.value}, updating tree view")
             self.tree.clear()
             self.populate_tree(self.bookmark_manager.root_folder)
         else:
-            # Try next browser if available
-            current_index = self.browser_combo.currentIndex()
-            if current_index < self.browser_combo.count() - 1:
-                self.browser_combo.setCurrentIndex(current_index + 1)
-            else:
-                # We've tried all browsers and none worked
-                browsers_tried = [self.browser_combo.itemText(i) for i in range(self.browser_combo.count())]
-                QMessageBox.critical(
-                    self, 
-                    "Error", 
-                    f"Tried to gather bookmarks for browsers {', '.join(browsers_tried)}, but none were successful."
-                )
+            print(f"Failed to load bookmarks for {browser.value}")
+            QMessageBox.critical(self, "Error", f"Failed to load bookmarks for {browser.value}")
     
     def populate_tree(self, folder: BookmarkFolder, parent_item: QTreeWidgetItem = None):
         """Populate the tree widget with bookmarks"""

@@ -30,6 +30,7 @@ class BrowserBookmarks:
     def has_valid_bookmark_path(self, browser: BrowserType) -> bool:
         """Check if the browser has a valid bookmark path that exists and is accessible"""
         try:
+            print(f"Checking bookmark path for {browser.value}")
             bookmark_paths = self.path_manager.get_bookmark_paths(browser)
             if not bookmark_paths:
                 print(f"No bookmark paths found for {browser.value}")
@@ -51,15 +52,12 @@ class BrowserBookmarks:
                 return False
             
             # Try to load bookmarks to verify they can be read
+            print(f"Attempting to load bookmarks for {browser.value}")
             if not self.load_browser_bookmarks(browser):
                 print(f"Failed to load bookmarks for {browser.value}")
                 return False
             
-            # Check if there are any bookmarks
-            if not self.has_bookmarks():
-                print(f"No bookmarks found for {browser.value}")
-                return False
-            
+            print(f"Successfully validated bookmark path for {browser.value}")
             return True
         except Exception as e:
             print(f"Error checking bookmark path for {browser.value}: {e}")
@@ -68,6 +66,7 @@ class BrowserBookmarks:
     def has_bookmarks(self) -> bool:
         """Check if the current browser has any bookmarks"""
         if not self.root_folder:
+            print("No root folder found when checking for bookmarks")
             return False
         
         def count_bookmarks(folder: BookmarkFolder) -> int:
@@ -79,7 +78,23 @@ class BrowserBookmarks:
                     count += count_bookmarks(child)
             return count
         
-        return count_bookmarks(self.root_folder) > 0
+        bookmark_count = count_bookmarks(self.root_folder)
+        print(f"Found {bookmark_count} bookmarks for {self.current_browser.value}")
+        return bookmark_count > 0
+
+    def refresh_bookmarks(self) -> bool:
+        """Reload bookmarks from disk for the current browser"""
+        if not self.current_browser:
+            print("No current browser selected for refresh")
+            return False
+        
+        print(f"Refreshing bookmarks for {self.current_browser.value}")
+        success = self.load_browser_bookmarks(self.current_browser)
+        if success:
+            print(f"Successfully refreshed bookmarks for {self.current_browser.value}")
+        else:
+            print(f"Failed to refresh bookmarks for {self.current_browser.value}")
+        return success
 
     def get_supported_browsers(self) -> Dict[BrowserType, bool]:
         """Get a dictionary of supported browsers for the current platform"""
