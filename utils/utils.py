@@ -1,6 +1,70 @@
-from urllib.parse import urlparse, urlunparse
-import re
+import logging
+import sys
+
 from difflib import SequenceMatcher
+from pathlib import Path
+from urllib.parse import urlparse, urlunparse
+
+# Configure logging
+def setup_logging():
+    """Configure logging for the application"""
+    # Create logs directory if it doesn't exist
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    
+    # Create a more detailed formatter
+    formatter = logging.Formatter(
+        fmt='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # Remove any existing handlers
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Create and configure handlers
+    file_handler = logging.FileHandler(
+        log_dir / "bookmark_manager.log",
+        encoding='utf-8'
+    )
+    file_handler.setFormatter(formatter)
+    
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    
+    # Configure root logger
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
+    
+    # Set up specific loggers with appropriate levels
+    main_logger = logging.getLogger("BookmarkManager")
+    main_logger.setLevel(logging.INFO)
+    
+    # Set up debug logging for specific modules
+    debug_modules = [
+        "BookmarkManager.browser",
+        "BookmarkManager.parser",
+        "BookmarkManager.url"
+    ]
+    for module in debug_modules:
+        logging.getLogger(module).setLevel(logging.DEBUG)
+
+# Create logger instance with context
+class ContextLogger(logging.LoggerAdapter):
+    def process(self, msg, kwargs):
+        # Add browser context if available
+        browser = kwargs.pop('browser', None)
+        if browser:
+            msg = f"[{browser}] {msg}"
+        return msg, kwargs
+
+# Initialize logging when module is imported
+setup_logging()
+
+# Create the main logger
+logger = ContextLogger(logging.getLogger("BookmarkManager"), {})
 
 def normalize_url(url: str) -> str:
     """
@@ -23,7 +87,8 @@ def normalize_url(url: str) -> str:
         # Reconstruct URL without protocol, query, and fragment
         normalized = urlunparse(('', netloc, parsed.path.rstrip('/'), '', '', ''))
         return normalized
-    except:
+    except Exception as e:
+        logger.warning(f"URL normalization failed | URL: {url} | Error: {e}")
         # If URL parsing fails, return the original URL in lowercase
         return url.lower()
 
@@ -44,6 +109,7 @@ def url_similarity(url1: str, url2: str) -> float:
     
     # Tier 1: Exact match
     if norm1 == norm2:
+        logger.debug(f"URL exact match | URL1: {norm1} | URL2: {norm2}")
         return 1.0
     
     # Tier 2: Word boundary match
@@ -53,17 +119,21 @@ def url_similarity(url1: str, url2: str) -> float:
             idx = target_str.find(test_str)
             # Check if it's at the start
             if idx == 0:
+                logger.debug(f"URL word boundary match at start | Test: {test_str} | Target: {target_str}")
                 return 0.9
             # Check if it's after a word boundary
             if idx > 0 and target_str[idx-1] in ['/', '-', '_']:
+                logger.debug(f"URL word boundary match after separator | Test: {test_str} | Target: {target_str}")
                 return 0.9
     # Tier 3: General substring match
             else:
+                logger.debug(f"URL substring match | Test: {test_str} | Target: {target_str}")
                 return 0.8 # No need to check further
     
     # Tier 4: String similarity
     # Use SequenceMatcher for string distance
     ratio = SequenceMatcher(None, norm1, norm2).ratio()
+    logger.debug(f"URL similarity ratio | URL1: {norm1} | URL2: {norm2} | Ratio: {ratio:.3f}")
     return 0.7 * ratio  # Cap at 0.7 to maintain tier separation
 
 def are_urls_similar(url1: str, url2: str, threshold: float = 0.8) -> bool:
@@ -76,4 +146,6 @@ def are_urls_similar(url1: str, url2: str, threshold: float = 0.8) -> bool:
     Returns:
         bool: True if URLs are similar enough, False otherwise
     """
-    return url_similarity(url1, url2) >= threshold 
+    similarity = url_similarity(url1, url2)
+    logger.debug(f"URL similarity check | URL1: {url1} | URL2: {url2} | Similarity: {similarity:.3f} | Threshold: {threshold}")
+    return similarity >= threshold 

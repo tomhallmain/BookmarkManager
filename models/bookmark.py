@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Union, TYPE_CHECKING
 from enum import Enum
-import uuid
+from typing import List, Optional, Union, TYPE_CHECKING
 import platform
+import uuid
+
 from utils.utils import normalize_url
 
 if TYPE_CHECKING:

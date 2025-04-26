@@ -4,9 +4,10 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
                              QCheckBox, QTabWidget, QMenu, QWidget, QHeaderView)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QAction
+
 from models.bookmark_manager import BookmarkManager, BrowserType
 from models.bookmark import Bookmark
-from utils.utils import are_urls_similar, url_similarity
+from utils.utils import are_urls_similar, url_similarity, logger
 
 class CrossBrowserWindow(QDialog):
     def __init__(self, parent=None):
@@ -134,35 +135,43 @@ class CrossBrowserWindow(QDialog):
     
     def load_all_browsers(self):
         """Load bookmarks from all supported browsers"""
+        logger.info("Loading bookmarks from all supported browsers")
         results = self.bookmark_manager.load_all_browsers()
         success_count = sum(1 for success in results.values() if success)
-        print(f"Loaded browsers: {results}")
+        logger.debug(f"Browser load results: {results}")
         if success_count > 0:
+            logger.info(f"Successfully loaded bookmarks from {success_count} browsers")
             QMessageBox.information(self, "Success", f"Loaded bookmarks from {success_count} browsers")
             # Try a test search to verify bookmarks are loaded
             self.search_input.setText("")
             self.search_bookmarks()
         else:
+            logger.warning("No bookmarks were loaded from any browser")
             QMessageBox.warning(self, "Warning", "No bookmarks were loaded")
     
     def save_all_changes(self):
         """Save changes to all browsers"""
+        logger.info("Saving changes to all browsers")
         results = self.bookmark_manager.save_all_bookmarks()
         success_count = sum(1 for success in results.values() if success)
         if success_count > 0:
+            logger.info(f"Successfully saved changes to {success_count} browsers")
             QMessageBox.information(self, "Success", f"Saved changes to {success_count} browsers")
         else:
+            logger.warning("No changes were saved to any browser")
             QMessageBox.warning(self, "Warning", "No changes were saved")
     
     def search_bookmarks(self):
         """Search for bookmarks across all browsers"""
         query = self.search_input.text().strip()
         if not query:
+            logger.debug("Empty search query, clearing results")
             self.search_results.clear()
             return
         
+        logger.info(f"Searching for bookmarks with query: {query}")
         results = self.bookmark_manager.search_all_bookmarks(query)
-        print(f"Found {len(results)} results for query: {query}")
+        logger.debug(f"Found {len(results)} results for query: {query}")
         
         self.search_results.clear()
         for bookmark in results:
@@ -176,13 +185,14 @@ class CrossBrowserWindow(QDialog):
         """Find bookmarks with similar URLs"""
         url = self.url_input.text().strip()
         if not url:
+            logger.debug("Empty URL input, clearing results")
             self.similar_results.clear()
             return
         
         threshold = self.threshold_spin.value()
-        print(f"Finding similar URLs to: {url} with threshold {threshold:.2f}")
+        logger.info(f"Finding similar URLs to: {url} with threshold {threshold:.2f}")
         results = self.bookmark_manager.find_similar_bookmarks(url, threshold)
-        print(f"Found {len(results)} similar bookmarks for URL: {url}")
+        logger.debug(f"Found {len(results)} similar bookmarks for URL: {url}")
         
         self.similar_results.clear()
         for bookmark in results:
@@ -248,11 +258,13 @@ class CrossBrowserWindow(QDialog):
     
     def open_bookmark(self, bookmark: Bookmark):
         """Open the bookmark in the default browser"""
+        logger.info(f"Opening bookmark in browser: {bookmark.url}")
         import webbrowser
         webbrowser.open(bookmark.url)
 
     def on_resize(self, event):
         """Handle window resize event to maintain column proportions"""
+        logger.debug("Adjusting column widths after window resize")
         # Update column widths
         header = self.search_results.header()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)  # Title

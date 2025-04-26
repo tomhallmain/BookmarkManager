@@ -1,6 +1,7 @@
 from pathlib import Path
 import platform
 from typing import Dict, Optional, List
+
 from .bookmark import BrowserType
 
 class PathManager:
