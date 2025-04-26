@@ -16,6 +16,7 @@ from utils.utils import logger
 from ui.network_tab import NetworkTab
 from ui.bookmark_tab import BookmarkTab
 from models.network.network_handler import NetworkHandler
+from ui.app_style import AppStyle
 import asyncio
 import threading
 
@@ -71,6 +72,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Bookmark Manager")
         self.setGeometry(100, 100, 1200, 800)
         
+        # Initialize app style
+        self.app_style = AppStyle(theme="dark")
+        self.setStyleSheet(self.app_style.get_application_style())
+        
         # Initialize bookmark manager
         self.bookmark_manager = BookmarkManager()
         
@@ -88,25 +93,13 @@ class MainWindow(QMainWindow):
         # Main status label
         self.status_label = QLabel("Ready")
         self.status_label.setAlignment(Qt.AlignCenter)
-        self.status_label.setStyleSheet("""
-            color: green;
-            background-color: #f0f0f0;
-            padding: 5px;
-            border-radius: 3px;
-            margin: 5px;
-        """)
+        self.status_label.setStyleSheet(self.app_style.get_status_style())
         self.status_label.setMinimumHeight(30)
         
         # Network status label
         self.network_status_label = QLabel("Network: Not connected")
         self.network_status_label.setAlignment(Qt.AlignCenter)
-        self.network_status_label.setStyleSheet("""
-            color: gray;
-            background-color: #f0f0f0;
-            padding: 5px;
-            border-radius: 3px;
-            margin: 5px;
-        """)
+        self.network_status_label.setStyleSheet(self.app_style.get_status_style(is_disabled=True))
         self.network_status_label.setMinimumHeight(30)
         
         status_layout.addWidget(self.status_label)
@@ -115,6 +108,7 @@ class MainWindow(QMainWindow):
         
         # Create tab widget
         self.tab_widget = QTabWidget()
+        self.tab_widget.setStyleSheet(self.app_style.get_tab_style())
         
         # Create tabs
         self.bookmark_tab = BookmarkTab(self.bookmark_manager)
@@ -338,13 +332,7 @@ class MainWindow(QMainWindow):
             return
             
         self.status_label.setText(message)
-        self.status_label.setStyleSheet(f"""
-            color: {'red' if is_error else 'green'};
-            background-color: #f0f0f0;
-            padding: 5px;
-            border-radius: 3px;
-            margin: 5px;
-        """)
+        self.status_label.setStyleSheet(self.app_style.get_status_style(is_error=is_error))
         # Make sure the label is visible
         self.status_label.show()
         
@@ -363,21 +351,9 @@ class MainWindow(QMainWindow):
         logger.debug(f"Showing network status: {message} (error: {is_error})")
         self.network_status_label.setText(f"Network: {message}")
         
-        # Set color based on status
-        if is_error:
-            color = "red"
-        elif message == "Not connected":
-            color = "gray"
-        else:
-            color = "green"
-            
-        self.network_status_label.setStyleSheet(f"""
-            color: {color};
-            background-color: #f0f0f0;
-            padding: 5px;
-            border-radius: 3px;
-            margin: 5px;
-        """)
+        # Set style based on status
+        is_disabled = message == "Not connected"
+        self.network_status_label.setStyleSheet(self.app_style.get_status_style(is_error=is_error, is_disabled=is_disabled))
         self.network_status_label.show()
         
         # Only clear temporary network status messages
