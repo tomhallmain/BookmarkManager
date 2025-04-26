@@ -1,24 +1,27 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QListWidget, QListWidgetItem, QLabel, QMessageBox, 
-    QInputDialog, QGroupBox, QLineEdit
+    QInputDialog, QGroupBox, QLineEdit, QCheckBox
 )
 from PySide6.QtCore import Qt, QTimer
 from models.network.service_browser import ServiceBrowser
 from models.network.network_client import NetworkClient
 from models.network.network_handler import NetworkHandler
-from zeroconf import ServiceInfo
 import asyncio
 from typing import List, Dict
 import threading
-import logging
+from datetime import datetime
+from models.bookmark import Bookmark
+from models.browser_bookmarks import BrowserBookmarks
 
-logger = logging.getLogger(__name__)
+
+from utils.utils import logger
 
 class NetworkTab(QWidget):
-    def __init__(self, network_handler: NetworkHandler):
+    def __init__(self, network_handler: NetworkHandler, bookmark_manager: BrowserBookmarks):
         super().__init__()
         self.network_handler = network_handler
+        self.bookmark_manager = bookmark_manager
         self.network_client = NetworkClient()
         self.service_browser = ServiceBrowser()
         
@@ -85,17 +88,34 @@ class NetworkTab(QWidget):
         layout.addWidget(auto_group)
         
         # Bookmarks section
-        bookmarks_group = QGroupBox("Bookmarks to Share")
+        bookmarks_group = QGroupBox("Bookmark Operations")
         bookmarks_layout = QVBoxLayout()
         
-        self.bookmark_list = QListWidget()
-        self.bookmark_list.setSelectionMode(QListWidget.MultiSelection)
+        # Share options
+        share_options = QHBoxLayout()
+        self.share_all_checkbox = QCheckBox("Share All Bookmarks")
+        self.share_all_checkbox.setChecked(True)  # Default to sharing all
+        share_options.addWidget(self.share_all_checkbox)
         
-        share_button = QPushButton("Share Selected Bookmarks")
+        # Sync options
+        sync_options = QHBoxLayout()
+        self.sync_checkbox = QCheckBox("Enable Two-Way Sync")
+        self.sync_checkbox.setChecked(True)  # Default to enabling sync
+        sync_options.addWidget(self.sync_checkbox)
+        
+        # Operation buttons
+        buttons_layout = QHBoxLayout()
+        share_button = QPushButton("Share Bookmarks")
         share_button.clicked.connect(self.share_bookmarks)
+        sync_button = QPushButton("Sync Bookmarks")
+        sync_button.clicked.connect(self.sync_bookmarks)
         
-        bookmarks_layout.addWidget(self.bookmark_list)
-        bookmarks_layout.addWidget(share_button)
+        buttons_layout.addWidget(share_button)
+        buttons_layout.addWidget(sync_button)
+        
+        bookmarks_layout.addLayout(share_options)
+        bookmarks_layout.addLayout(sync_options)
+        bookmarks_layout.addLayout(buttons_layout)
         bookmarks_group.setLayout(bookmarks_layout)
         layout.addWidget(bookmarks_group)
         
@@ -156,28 +176,134 @@ class NetworkTab(QWidget):
         pass
 
     def share_bookmarks(self):
-        selected_items = self.bookmark_list.selectedItems()
-        if not selected_items:
-            QMessageBox.warning(self, "Error", "Please select bookmarks to share")
-            return
-            
-        bookmarks = [item.data(Qt.UserRole) for item in selected_items]
+        """Share bookmarks with connected peers."""
         try:
-            self.network_client.send_bookmarks(bookmarks)
-            self.status_label.setText("Bookmarks shared successfully")
+            if self.share_all_checkbox.isChecked():
+                # Get all bookmarks from the current browser
+                bookmarks = self.get_all_bookmarks()
+                if not bookmarks:
+                    QMessageBox.warning(self, "Warning", "No bookmarks to share")
+                    return
+                
+                # Convert bookmarks to dict format for network transmission
+                bookmark_dicts = [self._bookmark_to_dict(b) for b in bookmarks]
+                self.network_client.send_bookmarks(bookmark_dicts)
+                self.status_label.setText("All bookmarks shared successfully")
+            else:
+                # Share selected bookmarks (existing functionality)
+                selected_items = self.bookmark_list.selectedItems()
+                if not selected_items:
+                    QMessageBox.warning(self, "Error", "Please select bookmarks to share")
+                    return
+                
+                bookmarks = [item.data(Qt.UserRole) for item in selected_items]
+                bookmark_dicts = [self._bookmark_to_dict(b) for b in bookmarks]
+                self.network_client.send_bookmarks(bookmark_dicts)
+                self.status_label.setText("Selected bookmarks shared successfully")
+                
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to share bookmarks: {e}")
             self.status_label.setText("Failed to share bookmarks")
 
+    def sync_bookmarks(self):
+        """Sync bookmarks with connected peers."""
+        try:
+            if not self.sync_checkbox.isChecked():
+                QMessageBox.warning(self, "Warning", "Two-way sync is disabled")
+                return
+                
+            # Get local bookmarks
+            local_bookmarks = self.get_all_bookmarks()
+            if not local_bookmarks:
+                QMessageBox.warning(self, "Warning", "No local bookmarks to sync")
+                return
+            
+            # Request remote bookmarks
+            self.network_client.request_bookmarks()
+            self.status_label.setText("Sync initiated")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to sync bookmarks: {e}")
+            self.status_label.setText("Failed to sync bookmarks")
+
+    def get_all_bookmarks(self) -> List[Bookmark]:
+        """Get all bookmarks from the current browser."""
+        try:
+            # Get the current browser from the main window
+            browser = self.parent().parent().browser_combo.currentData()
+            if not browser:
+                return []
+            
+            # Load bookmarks for the current browser
+            if self.bookmark_manager.load_browser_bookmarks(browser):
+                return self.bookmark_manager.get_all_bookmarks()
+            return []
+        except Exception as e:
+            logger.error(f"Error getting all bookmarks: {e}", browser="NetworkTab")
+            return []
+
+    def handle_bookmarks_received(self, bookmark_dicts: List[Dict]):
+        """Handle received bookmarks from peers."""
+        try:
+            if self.sync_checkbox.isChecked():
+                # Convert received dicts to Bookmark objects
+                remote_bookmarks = [self._dict_to_bookmark(d) for d in bookmark_dicts]
+                
+                # Get local bookmarks
+                local_bookmarks = self.get_all_bookmarks()
+                
+                # Merge bookmarks using the bookmark manager
+                self.bookmark_manager.merge_bookmarks(local_bookmarks, remote_bookmarks)
+                
+                # Save merged bookmarks
+                self.bookmark_manager.save_bookmarks()
+                
+                # Refresh the UI
+                self.parent().parent().load_bookmarks()
+                
+                QMessageBox.information(
+                    self, 
+                    "Sync Complete", 
+                    f"Successfully synced {len(bookmark_dicts)} bookmarks with local collection"
+                )
+            else:
+                QMessageBox.information(
+                    self, 
+                    "Bookmarks Received", 
+                    f"Received {len(bookmark_dicts)} bookmarks from remote instance"
+                )
+                
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to process received bookmarks: {e}")
+            self.status_label.setText("Failed to process received bookmarks")
+
+    def _bookmark_to_dict(self, bookmark: Bookmark) -> Dict:
+        """Convert a Bookmark object to a dictionary for network transmission."""
+        return {
+            'id': bookmark.id,
+            'title': bookmark.title,
+            'url': bookmark.url,
+            'description': bookmark.description,
+            'parent_id': bookmark.parent_id,
+            'created_at': bookmark.created_at.isoformat() if bookmark.created_at else None,
+            'last_modified': bookmark.last_modified.isoformat() if bookmark.last_modified else None
+        }
+
+    def _dict_to_bookmark(self, data: Dict) -> Bookmark:
+        """Convert a dictionary to a Bookmark object."""
+        return Bookmark(
+            id=data.get('id'),
+            title=data['title'],
+            url=data['url'],
+            description=data.get('description'),
+            parent_id=data.get('parent_id'),
+            created_at=datetime.fromisoformat(data['created_at']) if data.get('created_at') else None,
+            last_modified=datetime.fromisoformat(data['last_modified']) if data.get('last_modified') else None
+        )
+
     def handle_connection_lost(self):
         self.status_label.setText("Connection lost")
         QMessageBox.warning(self, "Connection Lost", "The connection to the remote instance was lost")
-
-    def handle_bookmarks_received(self, bookmarks):
-        QMessageBox.information(self, "Bookmarks Received", 
-                              f"Received {len(bookmarks)} bookmarks from remote instance")
-        # Handle received bookmarks - implement your bookmark import logic
-        pass
 
     def closeEvent(self, event):
         self.service_browser.stop_discovery()

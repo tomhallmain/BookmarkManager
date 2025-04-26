@@ -1,22 +1,21 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QLabel, QLineEdit, QTreeWidget, QTreeWidgetItem,
                              QMessageBox, QGroupBox, QSpinBox, QDoubleSpinBox,
                              QCheckBox, QTabWidget, QMenu, QWidget, QHeaderView)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QAction
+from typing import Optional
 
-from models.bookmark_manager import BookmarkManager, BrowserType
-from models.bookmark import Bookmark
+from models.bookmark_manager import BookmarkManager
+from models.bookmark import Bookmark, BrowserType
 from utils.utils import are_urls_similar, url_similarity, logger
 
-class CrossBrowserWindow(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Cross-Browser Operations")
-        self.setMinimumSize(800, 600)
+class CrossBrowserWindow(QWidget):
+    def __init__(self, bookmark_manager: BookmarkManager):
+        super().__init__()
         
-        # Initialize the cross-browser bookmark manager
-        self.bookmark_manager = BookmarkManager()
+        # Store the provided bookmark manager
+        self.bookmark_manager = bookmark_manager
         
         # Create main layout
         layout = QVBoxLayout(self)

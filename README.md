@@ -1,6 +1,6 @@
 # BookmarkManager
 
-A cross-browser bookmark management tool that helps you organize and find bookmarks across different browsers.
+A cross-browser bookmark manager that allows you to view, organize, and manage bookmarks across different browsers. It also supports sharing and syncing bookmarks between computers on the same network.
 
 ## Features
 - Load and manage bookmarks from multiple browsers:
@@ -27,9 +27,41 @@ A cross-browser bookmark management tool that helps you organize and find bookma
   - Resizable columns for better visibility
 - Network sharing with end-to-end encryption and automatic discovery
   - Includes protection against DDoS, message tampering, and session hijacking
+- Share bookmarks between computers on the same network
+- Automatic discovery of other BookmarkManager instances
+- Two-way sync of bookmarks between machines
+- End-to-end encryption for secure sharing
+- Protection against DDoS attacks and other security threats
+
+## Network Sharing Features
+
+### Automatic Discovery
+- Automatically finds other BookmarkManager instances on the same network
+- Shows available instances in the Network tab
+- Displays connection status and details
+
+### Bookmark Sharing
+- Share all bookmarks or selected bookmarks with other instances
+- Default setting to share all bookmarks for easy setup
+- Secure end-to-end encryption for all shared data
+- Automatic duplicate detection and handling
+
+### Two-Way Sync
+- Enable/disable two-way sync between machines
+- Automatic merging of bookmarks from different sources
+- Preserves folder structure during sync
+- Handles conflicts and duplicates intelligently
+
+### Security Features
+- End-to-end encryption using NaCl
+- Message signing and verification
+- Rate limiting and connection limits
+- IP blacklisting for suspicious activity
+- Session token management
+- Protection against DDoS attacks
 
 ## Requirements
-- Python 3.6+
+- Python 3.8 or higher
 - PySide6 (Qt for Python)
 - Access to browser bookmark files
 
@@ -52,25 +84,34 @@ Run the application:
 python main.py
 ```
 
-The application will automatically detect and load bookmarks from supported browsers installed on your system. Use the tabs to:
-1. Search across all browsers
-2. Find similar URLs to detect duplicates or related bookmarks
-3. Share bookmarks with other computers
+2. Select a browser from the dropdown menu to view its bookmarks.
 
-## Network Sharing
-To share bookmarks with other computers:
-1. Run BookmarkManager on each computer
-2. In the Network tab:
-   - For computers on the same network:
-     - Click "Refresh" to see available instances
-     - Select an instance and click "Connect"
-   - For computers on different networks:
-     - Enter the remote computer's IP address or hostname
-     - Enter the port (default: 8765)
-     - Click "Connect"
-3. Once connected, select bookmarks to share
-4. Click "Share Bookmarks" to send them
+3. Use the Network tab to:
+   - Connect to other BookmarkManager instances
+   - Share bookmarks with other computers
+   - Enable two-way sync
+   - View connection status and details
 
-## Note
-Some browsers may require the application to be closed before changes to bookmarks can be saved.
+4. To share bookmarks:
+   - Connect to another instance using either manual connection or auto-discovery
+   - Use "Share Bookmarks" to share all bookmarks (default) or selected bookmarks
+   - Use "Sync Bookmarks" to perform a two-way sync between machines
+
+5. To manage bookmarks:
+   - Right-click on bookmarks or folders to access context menu
+   - Add, edit, or delete bookmarks and folders
+   - Drag and drop to organize bookmarks
+   - Use the search bar to find specific bookmarks
+
+## Security
+
+The application implements several security measures to protect your bookmarks:
+
+- End-to-end encryption for all network communication
+- Secure key exchange using NaCl
+- Message signing with HMAC
+- Rate limiting and connection limits
+- IP blacklisting for suspicious activity
+- Automatic cleanup of stale connections
+- Protection against common attacks (DDoS, replay, etc.)
 
