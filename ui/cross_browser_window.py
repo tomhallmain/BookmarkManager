@@ -258,7 +258,7 @@ class CrossBrowserWindow(QDialog):
     
     def open_bookmark(self, bookmark: Bookmark):
         """Open the bookmark in the default browser"""
-        logger.info(f"Opening bookmark in browser: {bookmark.url}")
+        logger.info(f"Opening bookmark: {bookmark.url}", browser=bookmark.browser.value if bookmark.browser else None)
         import webbrowser
         webbrowser.open(bookmark.url)
 

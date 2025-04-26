@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
         
         for browser, is_supported in supported_browsers.items():
             if is_supported and self.bookmark_manager.has_valid_bookmark_path(browser):
-                logger.debug(f"Adding {browser.value} to available browsers")
+                logger.debug("Adding to available browsers", browser=browser.value)
                 available_browsers.append(browser)
         
         if not available_browsers:
@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         logger.debug("Looking for browser with bookmarks to start with")
         for browser in available_browsers:
             if self.bookmark_manager.load_browser_bookmarks(browser) and self.bookmark_manager.has_bookmarks():
-                logger.info(f"Starting with {browser.value} as it has bookmarks")
+                logger.info("Starting with browser as it has bookmarks", browser=browser.value)
                 self.browser_combo.setCurrentText(browser.value)
                 break
         else:
@@ -131,19 +131,21 @@ class MainWindow(QMainWindow):
     
     def refresh_bookmarks(self):
         """Refresh bookmarks for the current browser"""
-        logger.debug("Refreshing bookmarks")
+        browser = self.browser_combo.currentData()
+        logger.debug("Refreshing bookmarks", browser=browser.value if browser else None)
         if self.bookmark_manager.refresh_bookmarks():
-            logger.info("Successfully refreshed bookmarks, updating tree view")
+            logger.info("Successfully refreshed bookmarks, updating tree view", browser=browser.value if browser else None)
             self.tree.clear()
             self.populate_tree(self.bookmark_manager.root_folder)
         else:
-            logger.error("Failed to refresh bookmarks")
+            logger.error("Failed to refresh bookmarks", browser=browser.value if browser else None)
             QMessageBox.critical(self, "Error", "Failed to refresh bookmarks")
     
     def on_browser_changed(self, index: int):
         """Handle browser selection change"""
         if index >= 0:
-            logger.debug(f"Browser changed to index {index}")
+            browser = self.browser_combo.currentData()
+            logger.debug(f"Browser changed to index {index}", browser=browser.value if browser else None)
             self.load_bookmarks()
     
     def load_bookmarks(self):
@@ -153,13 +155,13 @@ class MainWindow(QMainWindow):
             logger.warning("No browser selected")
             return
         
-        logger.info(f"Loading bookmarks for {browser.value}")
+        logger.info("Loading bookmarks", browser=browser.value)
         if self.bookmark_manager.load_browser_bookmarks(browser):
-            logger.info(f"Successfully loaded bookmarks for {browser.value}, updating tree view")
+            logger.info("Successfully loaded bookmarks, updating tree view", browser=browser.value)
             self.tree.clear()
             self.populate_tree(self.bookmark_manager.root_folder)
         else:
-            logger.error(f"Failed to load bookmarks for {browser.value}")
+            logger.error("Failed to load bookmarks", browser=browser.value)
             QMessageBox.critical(self, "Error", f"Failed to load bookmarks for {browser.value}")
     
     def populate_tree(self, folder: BookmarkFolder, parent_item: QTreeWidgetItem = None):

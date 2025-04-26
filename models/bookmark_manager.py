@@ -31,43 +31,43 @@ class BrowserBookmarks:
     def has_valid_bookmark_path(self, browser: BrowserType) -> bool:
         """Check if the browser has a valid bookmark path that exists and is accessible"""
         try:
-            logger.debug(f"Checking bookmark path for {browser.value}")
+            logger.debug("Checking bookmark path", browser=browser.value)
             bookmark_paths = self.path_manager.get_bookmark_paths(browser)
             if not bookmark_paths:
-                logger.warning(f"No bookmark paths found for {browser.value}")
+                logger.warning("No bookmark paths found", browser=browser.value)
                 return False
             
             # Check if the main bookmark file exists and is accessible
             main_path = Path(bookmark_paths[0])
             if not main_path.exists():
-                logger.warning(f"No bookmark file found for {browser.value} at \"{main_path}\"")
+                logger.warning(f"No bookmark file found at \"{main_path}\"", browser=browser.value)
                 return False
             
             if not main_path.is_file():
-                logger.warning(f"Bookmark path for {browser.value} at \"{main_path}\" is not a file")
+                logger.warning(f"Bookmark path at \"{main_path}\" is not a file", browser=browser.value)
                 return False
             
             # Check if we have read access
             if not os.access(main_path, os.R_OK):
-                logger.warning(f"No read access to bookmark file for {browser.value} at \"{main_path}\"")
+                logger.warning(f"No read access to bookmark file at \"{main_path}\"", browser=browser.value)
                 return False
             
             # Try to load bookmarks to verify they can be read
-            logger.debug(f"Attempting to load bookmarks for {browser.value}")
+            logger.debug("Attempting to load bookmarks", browser=browser.value)
             if not self.load_browser_bookmarks(browser):
-                logger.error(f"Failed to load bookmarks for {browser.value}")
+                logger.error("Failed to load bookmarks", browser=browser.value)
                 return False
             
-            logger.debug(f"Successfully validated bookmark path for {browser.value}")
+            logger.debug("Successfully validated bookmark path", browser=browser.value)
             return True
         except Exception as e:
-            logger.error(f"Error checking bookmark path for {browser.value}: {e}")
+            logger.error(f"Error checking bookmark path: {e}", browser=browser.value)
             return False
 
     def has_bookmarks(self) -> bool:
         """Check if the current browser has any bookmarks"""
         if not self.root_folder:
-            logger.warning("No root folder found when checking for bookmarks")
+            logger.warning("No root folder found when checking for bookmarks", browser=self.current_browser.value if self.current_browser else None)
             return False
         
         def count_bookmarks(folder: BookmarkFolder) -> int:
@@ -80,7 +80,7 @@ class BrowserBookmarks:
             return count
         
         bookmark_count = count_bookmarks(self.root_folder)
-        logger.debug(f"Found {bookmark_count} bookmarks for {self.current_browser.value}")
+        logger.debug(f"Found {bookmark_count} bookmarks", browser=self.current_browser.value if self.current_browser else None)
         return bookmark_count > 0
 
     def refresh_bookmarks(self) -> bool:
@@ -89,12 +89,12 @@ class BrowserBookmarks:
             logger.warning("No current browser selected for refresh")
             return False
         
-        logger.debug(f"Refreshing bookmarks for {self.current_browser.value}")
+        logger.debug("Refreshing bookmarks", browser=self.current_browser.value)
         success = self.load_browser_bookmarks(self.current_browser)
         if success:
-            logger.debug(f"Successfully refreshed bookmarks for {self.current_browser.value}")
+            logger.debug("Successfully refreshed bookmarks", browser=self.current_browser.value)
         else:
-            logger.error(f"Failed to refresh bookmarks for {self.current_browser.value}")
+            logger.error("Failed to refresh bookmarks", browser=self.current_browser.value)
         return success
 
     def get_supported_browsers(self) -> Dict[BrowserType, bool]:
@@ -119,8 +119,8 @@ class BrowserBookmarks:
             
             # For Chromium-based browsers, we need to handle the root structure
             if browser.is_chromium_based():
-                logger.debug(f"Initial root folder title: {self.root_folder.title}")
-                logger.debug(f"Initial root folder children: {[child.title for child in self.root_folder.children]}")
+                logger.debug(f"Initial root folder title: {self.root_folder.title}", browser=browser.value)
+                logger.debug(f"Initial root folder children: {[child.title for child in self.root_folder.children]}", browser=browser.value)
                 
                 # Create a new root folder to hold all the special folders
                 new_root = BookmarkFolder(title="Bookmarks")
@@ -131,17 +131,17 @@ class BrowserBookmarks:
                     if isinstance(child, BookmarkFolder):
                         if child.title == "Bookmarks Bar":  # bookmark_bar
                             new_root.add_child(child)
-                            logger.debug(f"Added Bookmarks Bar folder with {len(child.children)} children")
+                            logger.debug(f"Added Bookmarks Bar folder with {len(child.children)} children", browser=browser.value)
                         elif child.title == "Other Bookmarks":  # other
                             new_root.add_child(child)
-                            logger.debug(f"Added Other Bookmarks folder with {len(child.children)} children")
+                            logger.debug(f"Added Other Bookmarks folder with {len(child.children)} children", browser=browser.value)
                         elif child.title == "Mobile Bookmarks":  # synced
                             new_root.add_child(child)
-                            logger.debug(f"Added Mobile Bookmarks folder with {len(child.children)} children")
+                            logger.debug(f"Added Mobile Bookmarks folder with {len(child.children)} children", browser=browser.value)
                     else:
-                        logger.debug(f"Skipped non-folder item: {type(child)} with title '{child.title}'")
+                        logger.debug(f"Skipped non-folder item: {type(child)} with title '{child.title}'", browser=browser.value)
                 
-                logger.debug(f"Final root folder children: {[child.title for child in new_root.children]}")
+                logger.debug(f"Final root folder children: {[child.title for child in new_root.children]}", browser=browser.value)
                 # Set the new root folder
                 self.root_folder = new_root
             
@@ -149,7 +149,7 @@ class BrowserBookmarks:
             self.root_folder.set_browser(browser)
             return True
         except Exception as e:
-            logger.error(f"Error loading bookmarks: {e}")
+            logger.error(f"Error loading bookmarks: {e}", browser=browser.value)
             return False
 
     def save_bookmarks(self) -> bool:
@@ -167,7 +167,7 @@ class BrowserBookmarks:
 
             return True
         except Exception as e:
-            logger.error(f"Error saving bookmarks: {e}")
+            logger.error(f"Error saving bookmarks: {e}", browser=self.current_browser.value)
             return False
 
     def add_bookmark(self, title: str, url: str, parent_id: Optional[str] = None) -> Optional[Bookmark]:

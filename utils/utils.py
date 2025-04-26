@@ -1,6 +1,7 @@
 import logging
 import sys
-
+import shutil
+from datetime import datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
@@ -11,6 +12,23 @@ def setup_logging():
     # Create logs directory if it doesn't exist
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
+    
+    # Define log file paths
+    current_log = log_dir / "bookmark_manager.log"
+    backup_log = log_dir / f"bookmark_manager_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    
+    # Rotate logs if current log exists
+    if current_log.exists():
+        # Get existing backup files
+        backup_files = sorted(log_dir.glob("bookmark_manager_*.log"), reverse=True)
+        
+        # If we have 2 or more backups, remove the oldest one
+        while len(backup_files) >= 2:
+            backup_files[-1].unlink()
+            backup_files.pop()
+        
+        # Rename current log to backup
+        shutil.move(str(current_log), str(backup_log))
     
     # Create a more detailed formatter
     formatter = logging.Formatter(
@@ -25,7 +43,7 @@ def setup_logging():
     
     # Create and configure handlers
     file_handler = logging.FileHandler(
-        log_dir / "bookmark_manager.log",
+        current_log,
         encoding='utf-8'
     )
     file_handler.setFormatter(formatter)
@@ -50,6 +68,10 @@ def setup_logging():
     ]
     for module in debug_modules:
         logging.getLogger(module).setLevel(logging.DEBUG)
+    
+    # Log startup message
+    logger = logging.getLogger("BookmarkManager")
+    logger.info("Application started - New log file created")
 
 # Create logger instance with context
 class ContextLogger(logging.LoggerAdapter):
