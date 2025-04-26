@@ -212,7 +212,7 @@ class NetworkTab(QWidget):
                     return
                 
                 # Convert bookmarks to dict format for network transmission
-                bookmark_dicts = [self._bookmark_to_dict(b) for b in bookmarks]
+                bookmark_dicts = [b.to_dict() for b in bookmarks]
                 self.network_client.send_bookmarks(bookmark_dicts)
                 self.network_status.emit("All bookmarks shared successfully", False)
             else:
@@ -223,7 +223,7 @@ class NetworkTab(QWidget):
                     return
                 
                 bookmarks = [item.data(Qt.UserRole) for item in selected_items]
-                bookmark_dicts = [self._bookmark_to_dict(b) for b in bookmarks]
+                bookmark_dicts = [b.to_dict() for b in bookmarks]
                 self.network_client.send_bookmarks(bookmark_dicts)
                 self.network_status.emit("Selected bookmarks shared successfully", False)
                 
@@ -273,7 +273,7 @@ class NetworkTab(QWidget):
         try:
             if self.sync_checkbox.isChecked():
                 # Convert received dicts to Bookmark objects
-                remote_bookmarks = [self._dict_to_bookmark(d) for d in bookmark_dicts]
+                remote_bookmarks = [Bookmark.from_dict(d) for d in bookmark_dicts]
                 
                 # Get local bookmarks
                 local_bookmarks = self.get_all_bookmarks()
@@ -302,30 +302,6 @@ class NetworkTab(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to process received bookmarks: {e}")
             self.status_label.setText("Failed to process received bookmarks")
-
-    def _bookmark_to_dict(self, bookmark: Bookmark) -> Dict:
-        """Convert a Bookmark object to a dictionary for network transmission."""
-        return {
-            'id': bookmark.id,
-            'title': bookmark.title,
-            'url': bookmark.url,
-            'description': bookmark.description,
-            'parent_id': bookmark.parent_id,
-            'created_at': bookmark.created_at.isoformat() if bookmark.created_at else None,
-            'last_modified': bookmark.last_modified.isoformat() if bookmark.last_modified else None
-        }
-
-    def _dict_to_bookmark(self, data: Dict) -> Bookmark:
-        """Convert a dictionary to a Bookmark object."""
-        return Bookmark(
-            id=data.get('id'),
-            title=data['title'],
-            url=data['url'],
-            description=data.get('description'),
-            parent_id=data.get('parent_id'),
-            created_at=datetime.fromisoformat(data['created_at']) if data.get('created_at') else None,
-            last_modified=datetime.fromisoformat(data['last_modified']) if data.get('last_modified') else None
-        )
 
     def handle_connection_lost(self):
         self.connection_status.update_from_event(ConnectionStatusEvent(

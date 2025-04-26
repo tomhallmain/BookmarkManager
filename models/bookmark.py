@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Union, TYPE_CHECKING
+from typing import Dict, List, Optional, Union, TYPE_CHECKING
 import platform
 import uuid
 
@@ -58,6 +58,31 @@ class Bookmark:
     def __post_init__(self):
         """Initialize computed fields after instance creation"""
         self.normalized_url = normalize_url(self.url)
+
+    def to_dict(self) -> Dict:
+        """Convert a Bookmark object to a dictionary for network transmission."""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'url': self.url,
+            'description': self.description,
+            'parent_id': self.parent_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_modified': self.modified_at.isoformat() if self.modified_at else None
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'Bookmark':
+        """Convert a dictionary to a Bookmark object."""
+        return cls(
+            id=data.get('id'),
+            title=data['title'],
+            url=data['url'],
+            description=data.get('description'),
+            parent_id=data.get('parent_id'),
+            created_at=datetime.fromisoformat(data['created_at']) if data.get('created_at') else None,
+            modified_at=datetime.fromisoformat(data['last_modified']) if data.get('last_modified') else None
+        )
 
 @dataclass
 class BookmarkFolder:
