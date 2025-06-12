@@ -137,4 +137,43 @@ class BookmarkFolder:
         for child in self.children:
             child.host = host
             if isinstance(child, BookmarkFolder):
-                child.set_host(host) 
+                child.set_host(host)
+
+    def to_dict(self) -> Dict:
+        """Serialize the BookmarkFolder object to a dictionary."""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'type': self.type.value,
+            'description': self.description,
+            'parent_id': self.parent_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_modified': self.modified_at.isoformat() if self.modified_at else None,
+            'browser': self.browser.value if self.browser else None,
+            'host': self.host,
+            'children': [child.to_dict() for child in self.children]
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'BookmarkFolder':
+        """Convert a dictionary to a BookmarkFolder object."""
+        folder = cls(
+            id=data.get('id'),
+            title=data['title'],
+            description=data.get('description'),
+            parent_id=data.get('parent_id'),
+            created_at=datetime.fromisoformat(data['created_at']) if data.get('created_at') else None,
+            modified_at=datetime.fromisoformat(data['last_modified']) if data.get('last_modified') else None,
+            browser=BrowserType(data['browser']) if data.get('browser') else BrowserType.UNKNOWN,
+            host=data.get('host', platform.node())
+        )
+        
+        # Recursively create children
+        for child_data in data.get('children', []):
+            if child_data['type'] == BookmarkType.FOLDER.value:
+                child = BookmarkFolder.from_dict(child_data)
+            else:
+                child = Bookmark.from_dict(child_data)
+            folder.add_child(child)
+            
+        return folder 

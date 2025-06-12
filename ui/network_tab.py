@@ -8,12 +8,12 @@ from models.network.service_browser import ServiceBrowser
 from models.network.network_client import NetworkClient
 from models.network.network_handler import NetworkHandler
 from models.network.network_connection_status import NetworkConnectionStatus
-from models.network.network_events import ServiceDiscoveredEvent, ConnectionStatusEvent
+from models.network.network_events import ServiceDiscoveredEvent, ConnectionStatusEvent, NetworkCallType, NetworkConnectionStatusType
 import asyncio
 from typing import List, Dict
 import threading
 from datetime import datetime
-from models.bookmark import Bookmark
+from models.bookmark import Bookmark, BookmarkFolder
 from models.browser_bookmarks import BrowserBookmarks
 
 from utils.utils import logger
@@ -160,18 +160,18 @@ class NetworkTab(QWidget):
             port = int(port) if port else 8765
             self.network_client.connect(host, port)
             self.connection_status.update_from_event(ConnectionStatusEvent(
-                is_connected=True,
                 service_info={
                     'name': host,
                     'address': f"{host}:{port}"
-                }
+                },
+                status_type=NetworkConnectionStatusType.CONNECTED
             ))
             self.load_bookmarks()
         except Exception as e:
             QMessageBox.critical(self, "Connection Error", str(e))
             self.connection_status.update_from_event(ConnectionStatusEvent(
-                is_connected=False,
-                error_message="Connection failed"
+                error_message="Connection failed",
+                status_type=NetworkConnectionStatusType.ERROR
             ))
 
     def connect_to_instance(self):
@@ -184,15 +184,15 @@ class NetworkTab(QWidget):
         try:
             self.network_client.connect(service['address'], service['port'])
             self.connection_status.update_from_event(ConnectionStatusEvent(
-                is_connected=True,
-                service_info=service
+                service_info=service,
+                status_type=NetworkConnectionStatusType.CONNECTED
             ))
             self.load_bookmarks()
         except Exception as e:
             QMessageBox.critical(self, "Connection Error", str(e))
             self.connection_status.update_from_event(ConnectionStatusEvent(
-                is_connected=False,
-                error_message="Connection failed"
+                error_message="Connection failed",
+                status_type=NetworkConnectionStatusType.ERROR
             ))
 
     def load_bookmarks(self):
@@ -206,14 +206,20 @@ class NetworkTab(QWidget):
         try:
             if self.share_all_checkbox.isChecked():
                 # Get all bookmarks from the current browser
-                bookmarks = self.get_all_bookmarks()
+                browser = self.parent().parent().browser_combo.currentData()
+                if not browser:
+                    QMessageBox.warning(self, "Warning", "No browser selected")
+                    return
+                
+                # Get the bookmarks for the current browser
+                bookmarks = self.bookmark_manager.get_browser_bookmarks(browser)
                 if not bookmarks:
                     QMessageBox.warning(self, "Warning", "No bookmarks to share")
                     return
                 
                 # Convert bookmarks to dict format for network transmission
                 bookmark_dicts = [b.to_dict() for b in bookmarks]
-                self.network_client.send_bookmarks(bookmark_dicts)
+                self.network_client.send_bookmarks(bookmark_dicts, NetworkCallType.SHARE_BOOKMARKS)
                 self.network_status.emit("All bookmarks shared successfully", False)
             else:
                 # Share selected bookmarks (existing functionality)
@@ -224,7 +230,7 @@ class NetworkTab(QWidget):
                 
                 bookmarks = [item.data(Qt.UserRole) for item in selected_items]
                 bookmark_dicts = [b.to_dict() for b in bookmarks]
-                self.network_client.send_bookmarks(bookmark_dicts)
+                self.network_client.send_bookmarks(bookmark_dicts, NetworkCallType.SHARE_BOOKMARKS)
                 self.network_status.emit("Selected bookmarks shared successfully", False)
                 
         except Exception as e:
@@ -238,45 +244,39 @@ class NetworkTab(QWidget):
                 QMessageBox.warning(self, "Warning", "Two-way sync is disabled")
                 return
                 
-            # Get local bookmarks
-            local_bookmarks = self.get_all_bookmarks()
-            if not local_bookmarks:
-                QMessageBox.warning(self, "Warning", "No local bookmarks to sync")
+            # Get the current browser
+            browser = self.parent().parent().browser_combo.currentData()
+            if not browser:
+                QMessageBox.warning(self, "Warning", "No browser selected")
                 return
-            
+                
             # Request remote bookmarks
-            self.network_client.request_bookmarks()
+            self.network_client.request_bookmarks(NetworkCallType.SYNC_BOOKMARKS)
             self.network_status.emit("Sync initiated", False)
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to sync bookmarks: {e}")
             self.network_status.emit("Failed to sync bookmarks", True)
 
-    def get_all_bookmarks(self) -> List[Bookmark]:
-        """Get all bookmarks from the current browser."""
-        try:
-            # Get the current browser from the main window
-            browser = self.parent().parent().browser_combo.currentData()
-            if not browser:
-                return []
-            
-            # Load bookmarks for the current browser
-            if self.bookmark_manager.load_browser_bookmarks(browser):
-                return self.bookmark_manager.get_all_bookmarks()
-            return []
-        except Exception as e:
-            logger.error(f"Error getting all bookmarks: {e}", browser="NetworkTab")
-            return []
-
-    def handle_bookmarks_received(self, bookmark_dicts: List[Dict]):
+    def handle_bookmarks_received(self, bookmark_dicts: List[Dict], call_type: NetworkCallType):
         """Handle received bookmarks from peers."""
         try:
             if self.sync_checkbox.isChecked():
-                # Convert received dicts to Bookmark objects
-                remote_bookmarks = [Bookmark.from_dict(d) for d in bookmark_dicts]
+                if call_type == NetworkCallType.SYNC_FOLDER_STRUCTURE:
+                    # Handle folder structure sync
+                    remote_bookmarks = [BookmarkFolder.from_dict(d) for d in bookmark_dicts]
+                else:
+                    # Handle individual bookmarks sync
+                    remote_bookmarks = [Bookmark.from_dict(d) for d in bookmark_dicts]
+                
+                # Get the current browser
+                browser = self.parent().parent().browser_combo.currentData()
+                if not browser:
+                    QMessageBox.warning(self, "Warning", "No browser selected")
+                    return
                 
                 # Get local bookmarks
-                local_bookmarks = self.get_all_bookmarks()
+                local_bookmarks = self.bookmark_manager.get_browser_bookmarks(browser)
                 
                 # Merge bookmarks using the bookmark manager
                 self.bookmark_manager.merge_bookmarks(local_bookmarks, remote_bookmarks)
@@ -305,8 +305,8 @@ class NetworkTab(QWidget):
 
     def handle_connection_lost(self):
         self.connection_status.update_from_event(ConnectionStatusEvent(
-            is_connected=False,
-            error_message="Connection lost"
+            error_message="Connection lost",
+            status_type=NetworkConnectionStatusType.DISCONNECTED
         ))
         QMessageBox.warning(self, "Connection Lost", "The connection to the remote instance was lost")
 
@@ -318,7 +318,10 @@ class NetworkTab(QWidget):
     def handle_connection_status(self, event: ConnectionStatusEvent):
         """Handle a connection status event"""
         self.connection_status.update_from_event(event)
-        self.network_status.emit(self.connection_status.get_status_message(), bool(event.error_message))
+        self.network_status.emit(
+            self.connection_status.get_status_message(), 
+            self.connection_status.is_status_type(NetworkConnectionStatusType.ERROR)
+        )
 
     def get_connection_status(self) -> NetworkConnectionStatus:
         """Get the network connection status object"""
