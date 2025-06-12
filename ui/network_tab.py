@@ -16,7 +16,7 @@ from datetime import datetime
 from models.bookmark import Bookmark, BookmarkFolder
 from models.browser_bookmarks import BrowserBookmarks
 
-from utils.utils import logger
+from utils.logger import logger
 
 class NetworkTab(QWidget):
     network_status = Signal(str, bool)  # message, is_error

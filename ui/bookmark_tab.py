@@ -10,7 +10,7 @@ from PySide6.QtGui import QIcon, QAction
 from models.bookmark_manager import BookmarkManager
 from models.browser_bookmarks import BrowserBookmarks
 from models.bookmark import Bookmark, BookmarkFolder
-from utils.utils import logger
+from utils.logger import logger
 
 class BookmarkTab(QWidget):
     status_message = Signal(str, bool)  # message, is_error

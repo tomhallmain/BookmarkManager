@@ -7,7 +7,7 @@ import socket
 # from nacl.public import PublicKey
 # from nacl.encoding import Base64Encoder
 
-from utils.utils import logger
+from utils.logger import logger
 from models.network.network_events import ServiceDiscoveredEvent
 
 

@@ -13,7 +13,7 @@ import secrets
 import websockets
 from zeroconf import ServiceInfo, Zeroconf
 
-from utils.utils import logger
+from utils.logger import logger
 from models.network.network_events import ServiceDiscoveredEvent, ConnectionStatusEvent
 
 class NetworkHandler:

@@ -10,7 +10,7 @@ from nacl.encoding import Base64Encoder
 import secrets
 import websockets
 
-from utils.utils import logger
+from utils.logger import logger
 
 class NetworkClient:
     def __init__(self):

@@ -12,7 +12,7 @@ from models.bookmark_manager import BookmarkManager
 from models.browser_bookmarks import BrowserBookmarks
 from models.bookmark import Bookmark, BookmarkFolder
 from ui.cross_browser_tab import CrossBrowserTab
-from utils.utils import logger
+from utils.logger import logger
 from ui.network_tab import NetworkTab
 from ui.bookmark_tab import BookmarkTab
 from models.network.network_handler import NetworkHandler
