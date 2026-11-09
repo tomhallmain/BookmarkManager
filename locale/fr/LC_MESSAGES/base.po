@@ -1,0 +1,767 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"POT-Creation-Date: 2026-11-09 16:41-0500\n"
+"PO-Revision-Date: 2026-11-09 16:41-0500\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
+"Language-Team: fr Team <<EMAIL>>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: models/bookmark_manager.py:59
+msgid "No available browsers found"
+msgstr "Aucun navigateur disponible trouvé"
+
+#: models/browser_bookmarks.py:36
+msgid "No bookmark paths found"
+msgstr "Aucun chemin de signet trouvé"
+
+#: models/browser_bookmarks.py:42
+msgid "No bookmark file found at \"{0}\""
+msgstr "Aucun fichier de signets trouvé à l'emplacement \"{0}\""
+
+#: models/browser_bookmarks.py:46
+msgid "Bookmark path at \"{0}\" is not a file"
+msgstr "Le chemin du marque‑page \"{0}\" n’est pas un fichier"
+
+#: models/browser_bookmarks.py:51
+msgid "No read access to bookmark file at \"{0}\""
+msgstr "Aucun accès en lecture au fichier de marque‑pages « {0} »"
+
+#: models/browser_bookmarks.py:57 ui/bookmark_tab.py:118
+#: ui/bookmark_tab.py:120
+msgid "Failed to load bookmarks"
+msgstr "Échec du chargement des favoris"
+
+#: models/browser_bookmarks.py:63
+msgid "Error checking bookmark path: {0}"
+msgstr "Erreur lors de la vérification du chemin du marque‑page : {0}"
+
+#: models/browser_bookmarks.py:69
+msgid "No root folder found when checking for bookmarks"
+msgstr "Aucun dossier racine trouvé lors de la vérification des marque-pages"
+
+#: models/browser_bookmarks.py:92 ui/bookmark_tab.py:90 ui/bookmark_tab.py:91
+#: ui/bookmark_tab.py:92
+msgid "Failed to refresh bookmarks"
+msgstr "Échec du rafraîchissement des marque-pages"
+
+#: models/browser_bookmarks.py:141
+msgid "Error loading bookmarks: {0}"
+msgstr "Erreur de chargement des favoris : {0}"
+
+#: models/browser_bookmarks.py:159
+msgid "Error saving bookmarks: {0}"
+msgstr "Erreur lors de l'enregistrement des marque-pages : {0}"
+
+#: models/network/network_client.py:38
+msgid "Already connected to a peer"
+msgstr "Déjà connecté à un pair"
+
+#: models/network/network_client.py:54 models/network/network_client.py:56
+msgid "Key exchange timeout"
+msgstr "Délai d'échange de clé"
+
+#: models/network/network_client.py:60
+msgid "Connected to {0}:{1}"
+msgstr "Connecté à {0}:{1}"
+
+#: models/network/network_client.py:67
+msgid "Failed to connect to {0}:{1}: {2}"
+msgstr "Échec de la connexion à {0}:{1} : {2}"
+
+#: models/network/network_client.py:83
+msgid "Connection monitoring error: {0}"
+msgstr "Erreur de surveillance de la connexion : {0}"
+
+#: models/network/network_client.py:92
+msgid "Attempting to reconnect in {0} seconds..."
+msgstr "Tentative de reconnexion dans {0} secondes..."
+
+#: models/network/network_client.py:96
+msgid "Max reconnection attempts reached"
+msgstr "Nombre maximal de tentatives de reconnexion atteint"
+
+#: models/network/network_client.py:104 models/network/network_client.py:155
+#: models/network/network_client.py:181
+msgid "Not connected to peer"
+msgstr "Non connecté au peer"
+
+#: models/network/network_client.py:132
+msgid "Failed to send message: {0}"
+msgstr "Échec de l'envoi du message : {0}"
+
+#: models/network/network_client.py:163
+msgid "Failed to send bookmarks: {0}"
+msgstr "Échec de l’envoi des marque-pages : {0}"
+
+#: models/network/network_client.py:174
+msgid "Failed to process queued message: {0}"
+msgstr "Échec du traitement du message en file d'attente : {0}"
+
+#: models/network/network_client.py:189
+msgid "Invalid message format"
+msgstr "Format de message invalide"
+
+#: models/network/network_client.py:194
+msgid "Invalid message signature"
+msgstr "Signature de message invalide"
+
+#: models/network/network_client.py:200
+msgid "Invalid session token"
+msgstr "Jeton de session invalide"
+
+#: models/network/network_client.py:207
+msgid "Unexpected message type: {0}"
+msgstr "Type de message inattendu : {0}"
+
+#: models/network/network_client.py:210
+msgid "Failed to receive bookmarks: {0}"
+msgstr "Échec de la récupération des marque‑pages : {0}"
+
+#: models/network/network_client.py:216 models/network/network_client.py:225
+msgid "No peer key available"
+msgstr "Aucune clé peer disponible"
+
+#: models/network/network_client.py:241
+msgid "Error closing connection: {0}"
+msgstr "Erreur lors de la fermeture de la connexion : {0}"
+
+#: models/network/network_connection_status.py:14
+#: models/network/network_connection_status.py:44
+#: models/network/network_connection_status.py:112 ui/main_window.py:101
+#: ui/main_window.py:210 ui/main_window.py:215 ui/main_window.py:217
+#: ui/network_tab.py:135
+msgid "Not connected"
+msgstr "Non connecté"
+
+#: models/network/network_connection_status.py:35
+msgid "Connected to {0} at {1}"
+msgstr "Connecté à {0} à {1}"
+
+#: models/network/network_connection_status.py:39
+msgid "Connection error"
+msgstr "Erreur de connexion"
+
+#: models/network/network_connection_status.py:58
+#: models/network/service_browser.py:46 ui/main_window.py:221
+msgid "Discovered service: {0} at {1}"
+msgstr "Service découvert : {0} à {1}"
+
+#: models/network/network_handler.py:66 models/network/service_browser.py:100
+msgid "Error in service discovery handler: {0}"
+msgstr "Erreur dans le gestionnaire de découverte de service : {0}"
+
+#: models/network/network_handler.py:74
+msgid "Error in connection status handler: {0}"
+msgstr "Erreur dans le gestionnaire d'état de connexion : {0}"
+
+#: models/network/network_handler.py:105
+msgid "Cleaning up stale connection: {0}"
+msgstr "Nettoyage de la connexion périmée : {0}"
+
+#: models/network/network_handler.py:110 models/network/service_browser.py:124
+msgid "Error in cleanup task: {0}"
+msgstr "Erreur dans la tâche de nettoyage : {0}"
+
+#: models/network/network_handler.py:130
+msgid "Error in security cleanup task: {0}"
+msgstr "Erreur dans la tâche de nettoyage de sécurité : {0}"
+
+#: models/network/network_handler.py:162
+msgid "Service discovery setup complete"
+msgstr "Configuration de la découverte de services terminée"
+
+#: models/network/network_handler.py:164
+msgid "Failed to setup service discovery: {0}"
+msgstr "Échec de la configuration du service de découverte: {0}"
+
+#: models/network/network_handler.py:180
+msgid "WebSocket server started on port {0}"
+msgstr "Serveur WebSocket démarré sur le port {0}"
+
+#: models/network/network_handler.py:183
+msgid "WebSocket server error: {0}"
+msgstr "Erreur du serveur WebSocket : {0}"
+
+#: models/network/network_handler.py:192
+msgid "Rejected connection from blacklisted address: {0}"
+msgstr "Connexion rejetée depuis l'adresse sur liste noire : {0}"
+
+#: models/network/network_handler.py:201
+msgid "Rejected connection: maximum connections reached"
+msgstr "Connexion rejetée : nombre maximal de connexions atteint"
+
+#: models/network/network_handler.py:211
+msgid "Key exchange timeout from {0}"
+msgstr "Délai d’échange de clés dépassé depuis {0}"
+
+#: models/network/network_handler.py:230
+msgid "New connection from {0}"
+msgstr "Nouvelle connexion depuis {0}"
+
+#: models/network/network_handler.py:245
+msgid "Error handling message from {0}: {1}"
+msgstr "Message d'erreur de {0} : {1}"
+
+#: models/network/network_handler.py:249
+msgid "Connection closed by {0}"
+msgstr "Connexion fermée par {0}"
+
+#: models/network/network_handler.py:251
+msgid "Connection error with {0}: {1}"
+msgstr "Erreur de connexion avec {0} : {1}"
+
+#: models/network/network_handler.py:261
+msgid "Error closing connection to {0}: {1}"
+msgstr "Erreur lors de la fermeture de la connexion à {0} : {1}"
+
+#: models/network/network_handler.py:268
+msgid "Connection to {0} closed and cleaned up"
+msgstr "Connexion à {0} fermée et nettoyée"
+
+#: models/network/network_handler.py:333
+msgid "Invalid JSON message"
+msgstr "Message JSON invalide"
+
+#: models/network/network_handler.py:336
+msgid "Error processing message: {0}"
+msgstr "Erreur lors du traitement du message : {0}"
+
+#: models/network/network_handler.py:349
+msgid "Failed to send message to {0}: {1}"
+msgstr "Échec de l’envoi du message à {0} : {1}"
+
+#: models/network/network_handler.py:358
+msgid "Error unregistering service: {0}"
+msgstr "Erreur lors de la désinscription du service : {0}"
+
+#: models/network/network_handler.py:365
+msgid "Network handler cleaned up"
+msgstr "Gestionnaire réseau nettoyé"
+
+#: models/network/network_handler.py:409
+msgid "Blacklisted {0} for suspicious connection attempts"
+msgstr "Placé sur la liste noire {0} pour tentatives de connexion suspectes"
+
+#: models/network/network_handler.py:431
+msgid "Rate limit exceeded for {0}"
+msgstr "Limite de débit dépassée pour {0}"
+
+#: models/network/network_handler.py:445
+msgid "Suspicious message size from {0}: {1} bytes"
+msgstr "Taille de message suspecte de {0} : {1} octets"
+
+#: models/network/service_browser.py:48
+msgid "Error adding service {0}: {1}"
+msgstr "Erreur lors de l'ajout du service {0}: {1}"
+
+#: models/network/service_browser.py:55
+msgid "Service removed: {0}"
+msgstr "Service supprimé : {0}"
+
+#: models/network/service_browser.py:57
+msgid "Error removing service {0}: {1}"
+msgstr "Erreur lors de la suppression du service {0} : {1}"
+
+#: models/network/service_browser.py:63
+msgid "Error updating service {0}: {1}"
+msgstr "Erreur lors de la mise à jour du service {0} : {1}"
+
+#: models/network/service_browser.py:74
+msgid "Removing stale service: {0}"
+msgstr "Suppression du service obsolète : {0}"
+
+#: models/network/service_browser.py:150
+msgid "Service browser started"
+msgstr "Navigateur de services démarré"
+
+#: models/network/service_browser.py:152
+msgid "Failed to start service browser: {0}"
+msgstr "Échec du démarrage du navigateur de services : {0}"
+
+#: models/network/service_browser.py:161
+msgid "Error removing service listener: {0}"
+msgstr "Erreur lors de la suppression de l'écouteur de service : {0}"
+
+#: models/network/service_browser.py:163
+msgid "Service browser cleaned up"
+msgstr "Navigateur de services nettoyé"
+
+#: models/network/service_browser.py:178
+msgid "Error getting service {0}: {1}"
+msgstr "Erreur lors de la récupération du service {0} : {1}"
+
+#: models/network/service_browser.py:187
+msgid "Service discovery stopped"
+msgstr "Découverte du service arrêtée"
+
+#: models/network/service_browser.py:189
+msgid "Error stopping service discovery: {0}"
+msgstr "Erreur lors de l'arrêt de la découverte du service : {0}"
+
+#: ui/bookmark_tab.py:31 ui/network_tab.py:94
+msgid "Refresh"
+msgstr "Actualiser"
+
+#: ui/bookmark_tab.py:34
+msgid "Browser:"
+msgstr "Navigateur:"
+
+#: ui/bookmark_tab.py:41 ui/main_window.py:120
+msgid "Bookmarks"
+msgstr "Favoris"
+
+#: ui/bookmark_tab.py:54 ui/bookmark_tab.py:91 ui/bookmark_tab.py:119
+#: ui/bookmark_tab.py:259 ui/bookmark_tab.py:280 ui/network_tab.py:157
+#: ui/network_tab.py:181 ui/network_tab.py:232 ui/network_tab.py:253
+#: ui/network_tab.py:299
+msgid "Error"
+msgstr "Erreur"
+
+#: ui/bookmark_tab.py:54
+msgid "No browser bookmark paths were found"
+msgstr "Aucun chemin de signet du navigateur trouvé"
+
+#: ui/bookmark_tab.py:80 ui/bookmark_tab.py:107 ui/bookmark_tab.py:108
+#: ui/network_tab.py:211 ui/network_tab.py:245 ui/network_tab.py:270
+msgid "No browser selected"
+msgstr "Aucun navigateur sélectionné"
+
+#: ui/bookmark_tab.py:88
+msgid "Bookmarks refreshed successfully"
+msgstr "Favoris rafraîchis avec succès"
+
+#: ui/bookmark_tab.py:100
+msgid "Loading bookmarks for {0}..."
+msgstr "Chargement des marque-pages pour {0}..."
+
+#: ui/bookmark_tab.py:116
+msgid "Loaded bookmarks from {0}"
+msgstr "Marque-pages chargés depuis {0}"
+
+#: ui/bookmark_tab.py:119
+msgid "Failed to load bookmarks for {0}"
+msgstr "Échec du chargement des favoris pour {0}"
+
+#: ui/bookmark_tab.py:160 ui/cross_browser_tab.py:270
+#: ui/cross_browser_tab.py:289
+msgid "Open in Browser"
+msgstr "Ouvrir dans le navigateur"
+
+#: ui/bookmark_tab.py:164
+msgid "Edit"
+msgstr "Modifier"
+
+#: ui/bookmark_tab.py:168 ui/bookmark_tab.py:181
+msgid "Delete"
+msgstr "Supprimer"
+
+#: ui/bookmark_tab.py:173 ui/bookmark_tab.py:227 ui/main_window.py:31
+msgid "Add Bookmark"
+msgstr "Ajouter le signet"
+
+#: ui/bookmark_tab.py:177 ui/bookmark_tab.py:264
+msgid "Add Folder"
+msgstr "Ajouter un dossier"
+
+#: ui/bookmark_tab.py:195 ui/main_window.py:31
+msgid "Edit Bookmark"
+msgstr "Modifier le signet"
+
+#: ui/bookmark_tab.py:201 ui/bookmark_tab.py:233 ui/main_window.py:38
+msgid "Title:"
+msgstr "Titre:"
+
+#: ui/bookmark_tab.py:202 ui/bookmark_tab.py:234 ui/main_window.py:43
+msgid "URL:"
+msgstr "URL:"
+
+#: ui/bookmark_tab.py:205 ui/bookmark_tab.py:237
+msgid "OK"
+msgstr "OK"
+
+#: ui/bookmark_tab.py:206 ui/bookmark_tab.py:238
+msgid "Cancel"
+msgstr "Annuler"
+
+#: ui/bookmark_tab.py:222
+msgid "Bookmark updated successfully"
+msgstr "Signet mis à jour avec succès"
+
+#: ui/bookmark_tab.py:257
+msgid "Bookmark added successfully"
+msgstr "Marque‑page ajouté avec succès"
+
+#: ui/bookmark_tab.py:259
+msgid "Title and URL are required"
+msgstr "Le titre et l'URL sont obligatoires"
+
+#: ui/bookmark_tab.py:260
+msgid "Failed to add bookmark - missing fields"
+msgstr "Échec de l'ajout du signet - champs manquants"
+
+#: ui/bookmark_tab.py:264
+msgid "Enter folder name:"
+msgstr "Entrez le nom du dossier :"
+
+#: ui/bookmark_tab.py:278
+msgid "Item deleted successfully"
+msgstr "Élément supprimé avec succès"
+
+#: ui/bookmark_tab.py:280 ui/bookmark_tab.py:281
+msgid "Failed to delete item"
+msgstr "Échec de la suppression de l’élément"
+
+#: ui/cross_browser_tab.py:37
+msgid "Search across all browsers..."
+msgstr "Rechercher dans tous les navigateurs..."
+
+#: ui/cross_browser_tab.py:39 ui/cross_browser_tab.py:114
+msgid "Search"
+msgstr "Rechercher"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "Title"
+msgstr "Titre"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "URL"
+msgstr "URL"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "Browser"
+msgstr "Navigateur"
+
+#: ui/cross_browser_tab.py:72
+msgid "Enter URL to find similar bookmarks..."
+msgstr "Entrez l'URL pour trouver des marque-pages similaires..."
+
+#: ui/cross_browser_tab.py:74
+msgid "Find Similar"
+msgstr "Trouver similaire"
+
+#: ui/cross_browser_tab.py:81
+msgid "Similarity threshold:"
+msgstr "Seuil de similarité:"
+
+#: ui/cross_browser_tab.py:93
+msgid "Similarity"
+msgstr "Similarité"
+
+#: ui/cross_browser_tab.py:115
+msgid "Similar Bookmarks"
+msgstr "Marque-pages similaires"
+
+#: ui/cross_browser_tab.py:121
+msgid "Load All Browsers"
+msgstr "Charger tous les navigateurs"
+
+#: ui/cross_browser_tab.py:123
+msgid "Save All Changes"
+msgstr "Enregistrer toutes les modifications"
+
+#: ui/cross_browser_tab.py:147 ui/cross_browser_tab.py:149
+msgid "Successfully loaded bookmarks from {0} browsers"
+msgstr "Marque-pages de {0} navigateurs chargés avec succès"
+
+#: ui/cross_browser_tab.py:154
+msgid "No bookmarks were loaded from any browser"
+msgstr "Aucun signet n’a été chargé à partir d’un navigateur"
+
+#: ui/cross_browser_tab.py:156
+msgid "No bookmarks were loaded"
+msgstr "Aucun signet n’a été chargé"
+
+#: ui/cross_browser_tab.py:164
+msgid "Successfully saved changes to {0} browsers"
+msgstr "Modifications enregistrées avec succès pour {0} navigateurs"
+
+#: ui/cross_browser_tab.py:165
+msgid "Success"
+msgstr "Succès"
+
+#: ui/cross_browser_tab.py:165
+msgid "Saved changes to {0} browsers"
+msgstr "Modifications enregistrées pour {0} navigateurs"
+
+#: ui/cross_browser_tab.py:167
+msgid "No changes were saved to any browser"
+msgstr "Aucun changement n’a été enregistré dans aucun navigateur"
+
+#: ui/cross_browser_tab.py:168 ui/network_tab.py:211 ui/network_tab.py:218
+#: ui/network_tab.py:239 ui/network_tab.py:245 ui/network_tab.py:270
+msgid "Warning"
+msgstr "Avertissement"
+
+#: ui/cross_browser_tab.py:168
+msgid "No changes were saved"
+msgstr "Aucun changement n’a été enregistré"
+
+#: ui/cross_browser_tab.py:179
+msgid "Searching for: {0}"
+msgstr "Recherche de : {0}"
+
+#: ui/cross_browser_tab.py:188
+msgid "No results found"
+msgstr "Aucun résultat trouvé"
+
+#: ui/cross_browser_tab.py:192
+msgid "Found {0} results"
+msgstr "{0} résultats trouvés"
+
+#: ui/cross_browser_tab.py:198 ui/cross_browser_tab.py:235
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: ui/cross_browser_tab.py:202
+msgid "Error searching bookmarks: {0}"
+msgstr "Erreur lors de la recherche des marque-pages : {0}"
+
+#: ui/cross_browser_tab.py:203
+msgid "Error searching: {0}"
+msgstr "Erreur lors de la recherche : {0}"
+
+#: ui/cross_browser_tab.py:215
+msgid "Finding similar bookmarks..."
+msgstr "Recherche de signets similaires..."
+
+#: ui/cross_browser_tab.py:224
+msgid "No similar bookmarks found"
+msgstr "Aucun signet similaire trouvé"
+
+#: ui/cross_browser_tab.py:228
+msgid "Found {0} similar bookmarks"
+msgstr "Trouvé {0} signets similaires"
+
+#: ui/cross_browser_tab.py:240
+msgid "Exact"
+msgstr "Exact"
+
+#: ui/cross_browser_tab.py:242
+msgid "Word Match"
+msgstr "Correspondance"
+
+#: ui/cross_browser_tab.py:244
+msgid "Substring"
+msgstr "sous-chaîne"
+
+#: ui/cross_browser_tab.py:246
+msgid "Similar"
+msgstr "Similaire"
+
+#: ui/cross_browser_tab.py:248
+msgid "Low ({0})"
+msgstr "Faible ({0})"
+
+#: ui/cross_browser_tab.py:254 ui/cross_browser_tab.py:255
+msgid "Error finding similar bookmarks: {0}"
+msgstr "Erreur lors de la recherche de marque‑pages similaires : {0}"
+
+#: ui/cross_browser_tab.py:300
+msgid "Opened: {0}"
+msgstr "Ouvert : {0}"
+
+#: ui/main_window.py:48
+msgid "Description:"
+msgstr "Description :"
+
+#: ui/main_window.py:73
+msgid "Bookmark Manager"
+msgstr "Gestionnaire de favoris"
+
+#: ui/main_window.py:95 ui/main_window.py:195 ui/main_window.py:197
+msgid "Ready"
+msgstr "Prêt"
+
+#: ui/main_window.py:101 ui/main_window.py:207
+msgid "Network: {0}"
+msgstr "Réseau : {0}"
+
+#: ui/main_window.py:121
+msgid "Network"
+msgstr "Réseau"
+
+#: ui/main_window.py:122
+msgid "Cross-Browser"
+msgstr "Multi-navigateurs"
+
+#: ui/main_window.py:137
+msgid "Loading bookmarks..."
+msgstr "Chargement des favoris..."
+
+#: ui/main_window.py:149
+msgid "Error in network handler: {0}"
+msgstr "Erreur dans le gestionnaire réseau : {0}"
+
+#: ui/main_window.py:155
+msgid "Main window closing, cleaning up resources"
+msgstr "Fermeture de la fenêtre principale, nettoyage des ressources"
+
+#: ui/main_window.py:165
+msgid "Saving modified bookmarks before closing"
+msgstr "Enregistrement des marque-pages modifiés avant fermeture"
+
+#: ui/main_window.py:177
+msgid "Error stopping network handler: {0}"
+msgstr "Erreur lors de l'arrêt du gestionnaire réseau : {0}"
+
+#: ui/network_tab.py:57
+msgid "Error starting service browser: {0}"
+msgstr "Erreur lors du démarrage du navigateur de services : {0}"
+
+#: ui/network_tab.py:69
+msgid "Manual Connection"
+msgstr "Connexion manuelle"
+
+#: ui/network_tab.py:73
+msgid "Enter IP address or hostname"
+msgstr "Entrez l'adresse IP ou le nom d'hôte"
+
+#: ui/network_tab.py:75
+msgid "Port (default: {0})"
+msgstr "Port (par défaut: {0})"
+
+#: ui/network_tab.py:78
+msgid "Connect"
+msgstr "Connecter"
+
+#: ui/network_tab.py:81
+msgid "Host:"
+msgstr "Hôte:"
+
+#: ui/network_tab.py:83
+msgid "Port:"
+msgstr "Port:"
+
+#: ui/network_tab.py:90
+msgid "Automatic Discovery"
+msgstr "Découverte automatique"
+
+#: ui/network_tab.py:103
+msgid "Bookmark Operations"
+msgstr "Opérations de signets"
+
+#: ui/network_tab.py:108 ui/network_tab.py:228
+msgid "Share All Bookmarks"
+msgstr "Partager tous les signets"
+
+#: ui/network_tab.py:114
+msgid "Enable Two-Way Sync"
+msgstr "Activer la synchronisation bidirectionnelle"
+
+#: ui/network_tab.py:120 ui/network_tab.py:227
+msgid "Share Bookmarks"
+msgstr "Partager les signets"
+
+#: ui/network_tab.py:122
+msgid "Sync Bookmarks"
+msgstr "Synchroniser les signets"
+
+#: ui/network_tab.py:157
+msgid "Please enter a host address"
+msgstr "Veuillez saisir une adresse d’hôte"
+
+#: ui/network_tab.py:172 ui/network_tab.py:193
+msgid "Connection Error"
+msgstr "Erreur de connexion"
+
+#: ui/network_tab.py:174 ui/network_tab.py:195
+msgid "Connection failed"
+msgstr "Connexion échouée"
+
+#: ui/network_tab.py:181
+msgid "Please select an instance to connect to"
+msgstr "Veuillez sélectionner une instance pour vous connecter"
+
+#: ui/network_tab.py:218
+msgid "No bookmarks to share"
+msgstr "Aucun signet à partager"
+
+#: ui/network_tab.py:224
+msgid "All bookmarks shared successfully"
+msgstr "Tous les favoris ont été partagés avec succès"
+
+#: ui/network_tab.py:228
+msgid ""
+"Sharing selected bookmarks is not available yet. Check \"{0}\" to share all "
+"bookmarks."
+msgstr ""
+"Le partage de marque-pages sélectionnés n’est pas encore disponible. "
+"Vérifiez « {0} » pour partager tous les marque-pages."
+
+#: ui/network_tab.py:232
+msgid "Failed to share bookmarks: {0}"
+msgstr "Échec du partage des marque-pages : {0}"
+
+#: ui/network_tab.py:233
+msgid "Failed to share bookmarks"
+msgstr "Échec du partage des marque-pages"
+
+#: ui/network_tab.py:239
+msgid "Two-way sync is disabled"
+msgstr "La synchronisation bidirectionnelle est désactivée"
+
+#: ui/network_tab.py:250
+msgid "Sync initiated"
+msgstr "Synchronisation démarrée"
+
+#: ui/network_tab.py:253
+msgid "Failed to sync bookmarks: {0}"
+msgstr "Échec de la synchronisation des marque-pages : {0}"
+
+#: ui/network_tab.py:254
+msgid "Failed to sync bookmarks"
+msgstr "Échec de la synchronisation des marque-pages"
+
+#: ui/network_tab.py:288
+msgid "Sync Complete"
+msgstr "Synchronisation terminée"
+
+#: ui/network_tab.py:289
+msgid "Successfully synced {0} bookmarks with local collection"
+msgstr "Synchronisation réussie de {0} marque-pages avec la collection locale"
+
+#: ui/network_tab.py:294
+msgid "Bookmarks Received"
+msgstr "Marque-pages reçus"
+
+#: ui/network_tab.py:295
+msgid "Received {0} bookmarks from remote instance"
+msgstr "Reçus {0} signets de l'instance distante"
+
+#: ui/network_tab.py:299
+msgid "Failed to process received bookmarks: {0}"
+msgstr "Échec du traitement des signets reçus : {0}"
+
+#: ui/network_tab.py:300
+msgid "Failed to process received bookmarks"
+msgstr "Échec du traitement des signets reçus"
+
+#: ui/network_tab.py:304
+msgid "Connection lost"
+msgstr "Connexion perdue"
+
+#: ui/network_tab.py:307
+msgid "Connection Lost"
+msgstr "Connexion perdue"
+
+#: ui/network_tab.py:307
+msgid "The connection to the remote instance was lost"
+msgstr "La connexion à l'instance distante a été perdue"
+
+#: ui/network_tab.py:339
+msgid "Error during browser cleanup: {0}"
+msgstr "Erreur lors du nettoyage du navigateur : {0}"
+
+#: utils/translations.py:45
+msgid "Switched locale to: {0}"
+msgstr "Langue modifiée : {0}"
+
+#: utils/utils.py:28
+msgid "URL normalization failed | URL: {0} | Error: {1}"
+msgstr "Échec de la normalisation de l'URL | URL: {0} | Erreur: {1}"

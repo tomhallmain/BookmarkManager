@@ -1,0 +1,767 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"POT-Creation-Date: 2026-11-09 16:41-0500\n"
+"PO-Revision-Date: 2026-11-09 16:41-0500\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
+"Language-Team: ru Team <<EMAIL>>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: models/bookmark_manager.py:59
+msgid "No available browsers found"
+msgstr "Не найдено доступных браузеров"
+
+#: models/browser_bookmarks.py:36
+msgid "No bookmark paths found"
+msgstr "Не найдено путей закладок"
+
+#: models/browser_bookmarks.py:42
+msgid "No bookmark file found at \"{0}\""
+msgstr "Файл закладок не найден по адресу \"{0}\""
+
+#: models/browser_bookmarks.py:46
+msgid "Bookmark path at \"{0}\" is not a file"
+msgstr "Путь закладки \"{0}\" не является файлом"
+
+#: models/browser_bookmarks.py:51
+msgid "No read access to bookmark file at \"{0}\""
+msgstr "Нет прав чтения файла закладок «{0}»"
+
+#: models/browser_bookmarks.py:57 ui/bookmark_tab.py:118
+#: ui/bookmark_tab.py:120
+msgid "Failed to load bookmarks"
+msgstr "Не удалось загрузить закладки"
+
+#: models/browser_bookmarks.py:63
+msgid "Error checking bookmark path: {0}"
+msgstr "Ошибка проверки пути закладки: {0}"
+
+#: models/browser_bookmarks.py:69
+msgid "No root folder found when checking for bookmarks"
+msgstr "Не найден корневой каталог при проверке закладок"
+
+#: models/browser_bookmarks.py:92 ui/bookmark_tab.py:90 ui/bookmark_tab.py:91
+#: ui/bookmark_tab.py:92
+msgid "Failed to refresh bookmarks"
+msgstr "Не удалось обновить закладки"
+
+#: models/browser_bookmarks.py:141
+msgid "Error loading bookmarks: {0}"
+msgstr "Ошибка загрузки закладок: {0}"
+
+#: models/browser_bookmarks.py:159
+msgid "Error saving bookmarks: {0}"
+msgstr "Ошибка при сохранении закладок: {0}"
+
+#: models/network/network_client.py:38
+msgid "Already connected to a peer"
+msgstr "Уже подключён к узлу"
+
+#: models/network/network_client.py:54 models/network/network_client.py:56
+msgid "Key exchange timeout"
+msgstr "Тайм‑аут обмена ключами"
+
+#: models/network/network_client.py:60
+msgid "Connected to {0}:{1}"
+msgstr "Подключено к {0}:{1}"
+
+#: models/network/network_client.py:67
+msgid "Failed to connect to {0}:{1}: {2}"
+msgstr "Не удалось подключиться к {0}:{1}: {2}"
+
+#: models/network/network_client.py:83
+msgid "Connection monitoring error: {0}"
+msgstr "Ошибка мониторинга соединения: {0}"
+
+#: models/network/network_client.py:92
+msgid "Attempting to reconnect in {0} seconds..."
+msgstr "Пытаемся переподключиться через {0} секунд..."
+
+#: models/network/network_client.py:96
+msgid "Max reconnection attempts reached"
+msgstr "Достигнуто максимальное количество попыток переподключения"
+
+#: models/network/network_client.py:104 models/network/network_client.py:155
+#: models/network/network_client.py:181
+msgid "Not connected to peer"
+msgstr "Не подключён к пиру"
+
+#: models/network/network_client.py:132
+msgid "Failed to send message: {0}"
+msgstr "Не удалось отправить сообщение: {0}"
+
+#: models/network/network_client.py:163
+msgid "Failed to send bookmarks: {0}"
+msgstr "Не удалось отправить закладки: {0}"
+
+#: models/network/network_client.py:174
+msgid "Failed to process queued message: {0}"
+msgstr "Не удалось обработать сообщение в очереди: {0}"
+
+#: models/network/network_client.py:189
+msgid "Invalid message format"
+msgstr "Недопустимый формат сообщения"
+
+#: models/network/network_client.py:194
+msgid "Invalid message signature"
+msgstr "Недействительная подпись сообщения"
+
+#: models/network/network_client.py:200
+msgid "Invalid session token"
+msgstr "Недействительный токен сеанса"
+
+#: models/network/network_client.py:207
+msgid "Unexpected message type: {0}"
+msgstr "Неожиданный тип сообщения: {0}"
+
+#: models/network/network_client.py:210
+msgid "Failed to receive bookmarks: {0}"
+msgstr "Не удалось получить закладки: {0}"
+
+#: models/network/network_client.py:216 models/network/network_client.py:225
+msgid "No peer key available"
+msgstr "Нет доступного ключа peer"
+
+#: models/network/network_client.py:241
+msgid "Error closing connection: {0}"
+msgstr "Ошибка при закрытии соединения: {0}"
+
+#: models/network/network_connection_status.py:14
+#: models/network/network_connection_status.py:44
+#: models/network/network_connection_status.py:112 ui/main_window.py:101
+#: ui/main_window.py:210 ui/main_window.py:215 ui/main_window.py:217
+#: ui/network_tab.py:135
+msgid "Not connected"
+msgstr "Не подключено"
+
+#: models/network/network_connection_status.py:35
+msgid "Connected to {0} at {1}"
+msgstr "Подключено к {0} в {1}"
+
+#: models/network/network_connection_status.py:39
+msgid "Connection error"
+msgstr "Ошибка соединения"
+
+#: models/network/network_connection_status.py:58
+#: models/network/service_browser.py:46 ui/main_window.py:221
+msgid "Discovered service: {0} at {1}"
+msgstr "Обнаруженный сервис: {0} в {1}"
+
+#: models/network/network_handler.py:66 models/network/service_browser.py:100
+msgid "Error in service discovery handler: {0}"
+msgstr "Ошибка в обработчике обнаружения служб: {0}"
+
+#: models/network/network_handler.py:74
+msgid "Error in connection status handler: {0}"
+msgstr "Ошибка в обработчике статуса соединения: {0}"
+
+#: models/network/network_handler.py:105
+msgid "Cleaning up stale connection: {0}"
+msgstr "Очистка устаревшего соединения: {0}"
+
+#: models/network/network_handler.py:110 models/network/service_browser.py:124
+msgid "Error in cleanup task: {0}"
+msgstr "Ошибка в задаче очистки: {0}"
+
+#: models/network/network_handler.py:130
+msgid "Error in security cleanup task: {0}"
+msgstr "Ошибка в задаче очистки безопасности: {0}"
+
+#: models/network/network_handler.py:162
+msgid "Service discovery setup complete"
+msgstr "Настройка обнаружения сервисов завершена"
+
+#: models/network/network_handler.py:164
+msgid "Failed to setup service discovery: {0}"
+msgstr "Не удалось настроить обнаружение службы: {0}"
+
+#: models/network/network_handler.py:180
+msgid "WebSocket server started on port {0}"
+msgstr "Сервер WebSocket запущен на порту {0}"
+
+#: models/network/network_handler.py:183
+msgid "WebSocket server error: {0}"
+msgstr "Ошибка сервера WebSocket: {0}"
+
+#: models/network/network_handler.py:192
+msgid "Rejected connection from blacklisted address: {0}"
+msgstr "Отклонено подключение от адреса в чёрном списке: {0}"
+
+#: models/network/network_handler.py:201
+msgid "Rejected connection: maximum connections reached"
+msgstr "Подключение отклонено: достигнуто максимальное количество соединений"
+
+#: models/network/network_handler.py:211
+msgid "Key exchange timeout from {0}"
+msgstr "Тайм‑аут обмена ключами от {0}"
+
+#: models/network/network_handler.py:230
+msgid "New connection from {0}"
+msgstr "Новое соединение от {0}"
+
+#: models/network/network_handler.py:245
+msgid "Error handling message from {0}: {1}"
+msgstr "Сообщение об ошибке от {0}: {1}"
+
+#: models/network/network_handler.py:249
+msgid "Connection closed by {0}"
+msgstr "Соединение закрыто {0}"
+
+#: models/network/network_handler.py:251
+msgid "Connection error with {0}: {1}"
+msgstr "Ошибка соединения с {0}: {1}"
+
+#: models/network/network_handler.py:261
+msgid "Error closing connection to {0}: {1}"
+msgstr "Ошибка при закрытии подключения к {0}: {1}"
+
+#: models/network/network_handler.py:268
+msgid "Connection to {0} closed and cleaned up"
+msgstr "Соединение с {0} закрыто и очищено"
+
+#: models/network/network_handler.py:333
+msgid "Invalid JSON message"
+msgstr "Недопустимое сообщение JSON"
+
+#: models/network/network_handler.py:336
+msgid "Error processing message: {0}"
+msgstr "Ошибка обработки сообщения: {0}"
+
+#: models/network/network_handler.py:349
+msgid "Failed to send message to {0}: {1}"
+msgstr "Не удалось отправить сообщение {0}: {1}"
+
+#: models/network/network_handler.py:358
+msgid "Error unregistering service: {0}"
+msgstr "Ошибка отмены регистрации сервиса: {0}"
+
+#: models/network/network_handler.py:365
+msgid "Network handler cleaned up"
+msgstr "Обработчик сети очищен"
+
+#: models/network/network_handler.py:409
+msgid "Blacklisted {0} for suspicious connection attempts"
+msgstr "«{0}» занесён в чёрный список за подозрительные попытки подключения"
+
+#: models/network/network_handler.py:431
+msgid "Rate limit exceeded for {0}"
+msgstr "Превышен лимит скорости для {0}"
+
+#: models/network/network_handler.py:445
+msgid "Suspicious message size from {0}: {1} bytes"
+msgstr "Подозрительный размер сообщения от {0}: {1} байт"
+
+#: models/network/service_browser.py:48
+msgid "Error adding service {0}: {1}"
+msgstr "Ошибка при добавлении службы {0}: {1}"
+
+#: models/network/service_browser.py:55
+msgid "Service removed: {0}"
+msgstr "Служба удалена: {0}"
+
+#: models/network/service_browser.py:57
+msgid "Error removing service {0}: {1}"
+msgstr "Ошибка при удалении службы {0}: {1}"
+
+#: models/network/service_browser.py:63
+msgid "Error updating service {0}: {1}"
+msgstr "Ошибка при обновлении службы {0}: {1}"
+
+#: models/network/service_browser.py:74
+msgid "Removing stale service: {0}"
+msgstr "Удаление устаревшего сервиса: {0}"
+
+#: models/network/service_browser.py:150
+msgid "Service browser started"
+msgstr "Браузер службы запущен"
+
+#: models/network/service_browser.py:152
+msgid "Failed to start service browser: {0}"
+msgstr "Не удалось запустить обозреватель служб: {0}"
+
+#: models/network/service_browser.py:161
+msgid "Error removing service listener: {0}"
+msgstr "Ошибка при удалении слушателя сервиса: {0}"
+
+#: models/network/service_browser.py:163
+msgid "Service browser cleaned up"
+msgstr "Браузер сервисов очищен"
+
+#: models/network/service_browser.py:178
+msgid "Error getting service {0}: {1}"
+msgstr "Ошибка при получении службы {0}: {1}"
+
+#: models/network/service_browser.py:187
+msgid "Service discovery stopped"
+msgstr "Обнаружение службы остановлено"
+
+#: models/network/service_browser.py:189
+msgid "Error stopping service discovery: {0}"
+msgstr "Ошибка при остановке обнаружения службы: {0}"
+
+#: ui/bookmark_tab.py:31 ui/network_tab.py:94
+msgid "Refresh"
+msgstr "Обновить"
+
+#: ui/bookmark_tab.py:34
+msgid "Browser:"
+msgstr "Браузер:"
+
+#: ui/bookmark_tab.py:41 ui/main_window.py:120
+msgid "Bookmarks"
+msgstr "Закладки"
+
+#: ui/bookmark_tab.py:54 ui/bookmark_tab.py:91 ui/bookmark_tab.py:119
+#: ui/bookmark_tab.py:259 ui/bookmark_tab.py:280 ui/network_tab.py:157
+#: ui/network_tab.py:181 ui/network_tab.py:232 ui/network_tab.py:253
+#: ui/network_tab.py:299
+msgid "Error"
+msgstr "Ошибка"
+
+#: ui/bookmark_tab.py:54
+msgid "No browser bookmark paths were found"
+msgstr "Не найдено путей закладок браузера"
+
+#: ui/bookmark_tab.py:80 ui/bookmark_tab.py:107 ui/bookmark_tab.py:108
+#: ui/network_tab.py:211 ui/network_tab.py:245 ui/network_tab.py:270
+msgid "No browser selected"
+msgstr "Браузер не выбран"
+
+#: ui/bookmark_tab.py:88
+msgid "Bookmarks refreshed successfully"
+msgstr "Закладки успешно обновлены"
+
+#: ui/bookmark_tab.py:100
+msgid "Loading bookmarks for {0}..."
+msgstr "Загрузка закладок для {0}..."
+
+#: ui/bookmark_tab.py:116
+msgid "Loaded bookmarks from {0}"
+msgstr "Закладки загружены из {0}"
+
+#: ui/bookmark_tab.py:119
+msgid "Failed to load bookmarks for {0}"
+msgstr "Не удалось загрузить закладки для {0}"
+
+#: ui/bookmark_tab.py:160 ui/cross_browser_tab.py:270
+#: ui/cross_browser_tab.py:289
+msgid "Open in Browser"
+msgstr "Открыть в браузере"
+
+#: ui/bookmark_tab.py:164
+msgid "Edit"
+msgstr "Редактировать"
+
+#: ui/bookmark_tab.py:168 ui/bookmark_tab.py:181
+msgid "Delete"
+msgstr "Удалить"
+
+#: ui/bookmark_tab.py:173 ui/bookmark_tab.py:227 ui/main_window.py:31
+msgid "Add Bookmark"
+msgstr "Добавить закладку"
+
+#: ui/bookmark_tab.py:177 ui/bookmark_tab.py:264
+msgid "Add Folder"
+msgstr "Добавить папку"
+
+#: ui/bookmark_tab.py:195 ui/main_window.py:31
+msgid "Edit Bookmark"
+msgstr "Редактировать закладку"
+
+#: ui/bookmark_tab.py:201 ui/bookmark_tab.py:233 ui/main_window.py:38
+msgid "Title:"
+msgstr "Заголовок:"
+
+#: ui/bookmark_tab.py:202 ui/bookmark_tab.py:234 ui/main_window.py:43
+msgid "URL:"
+msgstr "URL:"
+
+#: ui/bookmark_tab.py:205 ui/bookmark_tab.py:237
+msgid "OK"
+msgstr "ОК"
+
+#: ui/bookmark_tab.py:206 ui/bookmark_tab.py:238
+msgid "Cancel"
+msgstr "Отмена"
+
+#: ui/bookmark_tab.py:222
+msgid "Bookmark updated successfully"
+msgstr "Закладка успешно обновлена"
+
+#: ui/bookmark_tab.py:257
+msgid "Bookmark added successfully"
+msgstr "Закладка успешно добавлена"
+
+#: ui/bookmark_tab.py:259
+msgid "Title and URL are required"
+msgstr "Требуются заголовок и URL"
+
+#: ui/bookmark_tab.py:260
+msgid "Failed to add bookmark - missing fields"
+msgstr "Не удалось добавить закладку - отсутствующие поля"
+
+#: ui/bookmark_tab.py:264
+msgid "Enter folder name:"
+msgstr "Введите имя папки:"
+
+#: ui/bookmark_tab.py:278
+msgid "Item deleted successfully"
+msgstr "Элемент успешно удалён"
+
+#: ui/bookmark_tab.py:280 ui/bookmark_tab.py:281
+msgid "Failed to delete item"
+msgstr "Не удалось удалить элемент"
+
+#: ui/cross_browser_tab.py:37
+msgid "Search across all browsers..."
+msgstr "Поиск во всех браузерах..."
+
+#: ui/cross_browser_tab.py:39 ui/cross_browser_tab.py:114
+msgid "Search"
+msgstr "Поиск"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "Title"
+msgstr "Заголовок"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "URL"
+msgstr "URL"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "Browser"
+msgstr "Браузер"
+
+#: ui/cross_browser_tab.py:72
+msgid "Enter URL to find similar bookmarks..."
+msgstr "Введите URL, чтобы найти похожие закладки..."
+
+#: ui/cross_browser_tab.py:74
+msgid "Find Similar"
+msgstr "Найти похожие"
+
+#: ui/cross_browser_tab.py:81
+msgid "Similarity threshold:"
+msgstr "Порог схожести:"
+
+#: ui/cross_browser_tab.py:93
+msgid "Similarity"
+msgstr "Сходство"
+
+#: ui/cross_browser_tab.py:115
+msgid "Similar Bookmarks"
+msgstr "Похожие закладки"
+
+#: ui/cross_browser_tab.py:121
+msgid "Load All Browsers"
+msgstr "Загрузить все браузеры"
+
+#: ui/cross_browser_tab.py:123
+msgid "Save All Changes"
+msgstr "Сохранить все изменения"
+
+#: ui/cross_browser_tab.py:147 ui/cross_browser_tab.py:149
+msgid "Successfully loaded bookmarks from {0} browsers"
+msgstr "Закладки из {0} браузеров успешно загружены"
+
+#: ui/cross_browser_tab.py:154
+msgid "No bookmarks were loaded from any browser"
+msgstr "Из любого браузера не было загружено закладок"
+
+#: ui/cross_browser_tab.py:156
+msgid "No bookmarks were loaded"
+msgstr "Закладки не загрузились"
+
+#: ui/cross_browser_tab.py:164
+msgid "Successfully saved changes to {0} browsers"
+msgstr "Изменения для {0} браузеров успешно сохранены"
+
+#: ui/cross_browser_tab.py:165
+msgid "Success"
+msgstr "Успех"
+
+#: ui/cross_browser_tab.py:165
+msgid "Saved changes to {0} browsers"
+msgstr "Изменения для {0} браузеров сохранены"
+
+#: ui/cross_browser_tab.py:167
+msgid "No changes were saved to any browser"
+msgstr "Изменения не были сохранены ни в одном браузере"
+
+#: ui/cross_browser_tab.py:168 ui/network_tab.py:211 ui/network_tab.py:218
+#: ui/network_tab.py:239 ui/network_tab.py:245 ui/network_tab.py:270
+msgid "Warning"
+msgstr "Предупреждение"
+
+#: ui/cross_browser_tab.py:168
+msgid "No changes were saved"
+msgstr "Изменения не были сохранены"
+
+#: ui/cross_browser_tab.py:179
+msgid "Searching for: {0}"
+msgstr "Поиск: {0}"
+
+#: ui/cross_browser_tab.py:188
+msgid "No results found"
+msgstr "Результаты не найдены"
+
+#: ui/cross_browser_tab.py:192
+msgid "Found {0} results"
+msgstr "Найдено {0} результатов"
+
+#: ui/cross_browser_tab.py:198 ui/cross_browser_tab.py:235
+msgid "Unknown"
+msgstr "Неизвестно"
+
+#: ui/cross_browser_tab.py:202
+msgid "Error searching bookmarks: {0}"
+msgstr "Ошибка при поиске закладок: {0}"
+
+#: ui/cross_browser_tab.py:203
+msgid "Error searching: {0}"
+msgstr "Ошибка при поиске: {0}"
+
+#: ui/cross_browser_tab.py:215
+msgid "Finding similar bookmarks..."
+msgstr "Поиск похожих закладок..."
+
+#: ui/cross_browser_tab.py:224
+msgid "No similar bookmarks found"
+msgstr "Похожие закладки не найдены"
+
+#: ui/cross_browser_tab.py:228
+msgid "Found {0} similar bookmarks"
+msgstr "Найдено {0} похожих закладок"
+
+#: ui/cross_browser_tab.py:240
+msgid "Exact"
+msgstr "Точный"
+
+#: ui/cross_browser_tab.py:242
+msgid "Word Match"
+msgstr "Сопоставить"
+
+#: ui/cross_browser_tab.py:244
+msgid "Substring"
+msgstr "подстрока"
+
+#: ui/cross_browser_tab.py:246
+msgid "Similar"
+msgstr "Похожий"
+
+#: ui/cross_browser_tab.py:248
+msgid "Low ({0})"
+msgstr "Низкий ({0})"
+
+#: ui/cross_browser_tab.py:254 ui/cross_browser_tab.py:255
+msgid "Error finding similar bookmarks: {0}"
+msgstr "Ошибка при поиске похожих закладок: {0}"
+
+#: ui/cross_browser_tab.py:300
+msgid "Opened: {0}"
+msgstr "Открыто: {0}"
+
+#: ui/main_window.py:48
+msgid "Description:"
+msgstr "Описание:"
+
+#: ui/main_window.py:73
+msgid "Bookmark Manager"
+msgstr "Менеджер закладок"
+
+#: ui/main_window.py:95 ui/main_window.py:195 ui/main_window.py:197
+msgid "Ready"
+msgstr "Готово"
+
+#: ui/main_window.py:101 ui/main_window.py:207
+msgid "Network: {0}"
+msgstr "Сеть: {0}"
+
+#: ui/main_window.py:121
+msgid "Network"
+msgstr "Сеть"
+
+#: ui/main_window.py:122
+msgid "Cross-Browser"
+msgstr "Кросс‑браузерный"
+
+#: ui/main_window.py:137
+msgid "Loading bookmarks..."
+msgstr "Загрузка закладок..."
+
+#: ui/main_window.py:149
+msgid "Error in network handler: {0}"
+msgstr "Ошибка в обработчике сети: {0}"
+
+#: ui/main_window.py:155
+msgid "Main window closing, cleaning up resources"
+msgstr "Главное окно закрывается, очистка ресурсов"
+
+#: ui/main_window.py:165
+msgid "Saving modified bookmarks before closing"
+msgstr "Сохранение изменённых закладок перед закрытием"
+
+#: ui/main_window.py:177
+msgid "Error stopping network handler: {0}"
+msgstr "Ошибка при остановке сетевого обработчика: {0}"
+
+#: ui/network_tab.py:57
+msgid "Error starting service browser: {0}"
+msgstr "Ошибка запуска сервис‑браузера: {0}"
+
+#: ui/network_tab.py:69
+msgid "Manual Connection"
+msgstr "Ручное подключение"
+
+#: ui/network_tab.py:73
+msgid "Enter IP address or hostname"
+msgstr "Введите IP-адрес или имя хоста"
+
+#: ui/network_tab.py:75
+msgid "Port (default: {0})"
+msgstr "Порт (по умолчанию: {0})"
+
+#: ui/network_tab.py:78
+msgid "Connect"
+msgstr "Подключить"
+
+#: ui/network_tab.py:81
+msgid "Host:"
+msgstr "Хост:"
+
+#: ui/network_tab.py:83
+msgid "Port:"
+msgstr "Порт:"
+
+#: ui/network_tab.py:90
+msgid "Automatic Discovery"
+msgstr "Автоматическое обнаружение"
+
+#: ui/network_tab.py:103
+msgid "Bookmark Operations"
+msgstr "Операции закладок"
+
+#: ui/network_tab.py:108 ui/network_tab.py:228
+msgid "Share All Bookmarks"
+msgstr "Поделиться всеми закладками"
+
+#: ui/network_tab.py:114
+msgid "Enable Two-Way Sync"
+msgstr "Включить двунаправленную синхронизацию"
+
+#: ui/network_tab.py:120 ui/network_tab.py:227
+msgid "Share Bookmarks"
+msgstr "Поделиться закладками"
+
+#: ui/network_tab.py:122
+msgid "Sync Bookmarks"
+msgstr "Синхронизировать закладки"
+
+#: ui/network_tab.py:157
+msgid "Please enter a host address"
+msgstr "Пожалуйста, введите адрес хоста"
+
+#: ui/network_tab.py:172 ui/network_tab.py:193
+msgid "Connection Error"
+msgstr "Ошибка соединения"
+
+#: ui/network_tab.py:174 ui/network_tab.py:195
+msgid "Connection failed"
+msgstr "Ошибка соединения"
+
+#: ui/network_tab.py:181
+msgid "Please select an instance to connect to"
+msgstr "Пожалуйста, выберите экземпляр для подключения"
+
+#: ui/network_tab.py:218
+msgid "No bookmarks to share"
+msgstr "Нет закладок для обмена"
+
+#: ui/network_tab.py:224
+msgid "All bookmarks shared successfully"
+msgstr "Все закладки успешно расшарены"
+
+#: ui/network_tab.py:228
+msgid ""
+"Sharing selected bookmarks is not available yet. Check \"{0}\" to share all "
+"bookmarks."
+msgstr ""
+"Поделиться выбранными закладками пока недоступно. Проверьте «{0}», чтобы "
+"поделиться всеми закладками."
+
+#: ui/network_tab.py:232
+msgid "Failed to share bookmarks: {0}"
+msgstr "Не удалось поделиться закладками: {0}"
+
+#: ui/network_tab.py:233
+msgid "Failed to share bookmarks"
+msgstr "Не удалось поделиться закладками"
+
+#: ui/network_tab.py:239
+msgid "Two-way sync is disabled"
+msgstr "Двусторонняя синхронизация отключена"
+
+#: ui/network_tab.py:250
+msgid "Sync initiated"
+msgstr "Синхронизация запущена"
+
+#: ui/network_tab.py:253
+msgid "Failed to sync bookmarks: {0}"
+msgstr "Не удалось синхронизировать закладки: {0}"
+
+#: ui/network_tab.py:254
+msgid "Failed to sync bookmarks"
+msgstr "Не удалось синхронизировать закладки"
+
+#: ui/network_tab.py:288
+msgid "Sync Complete"
+msgstr "Синхронизация завершена"
+
+#: ui/network_tab.py:289
+msgid "Successfully synced {0} bookmarks with local collection"
+msgstr "Успешно синхронизировано {0} закладок с локальной коллекцией"
+
+#: ui/network_tab.py:294
+msgid "Bookmarks Received"
+msgstr "Полученные закладки"
+
+#: ui/network_tab.py:295
+msgid "Received {0} bookmarks from remote instance"
+msgstr "Получено {0} закладок из удалённого экземпляра"
+
+#: ui/network_tab.py:299
+msgid "Failed to process received bookmarks: {0}"
+msgstr "Не удалось обработать полученные закладки: {0}"
+
+#: ui/network_tab.py:300
+msgid "Failed to process received bookmarks"
+msgstr "Не удалось обработать полученные закладки"
+
+#: ui/network_tab.py:304
+msgid "Connection lost"
+msgstr "Соединение потеряно"
+
+#: ui/network_tab.py:307
+msgid "Connection Lost"
+msgstr "Соединение потеряно"
+
+#: ui/network_tab.py:307
+msgid "The connection to the remote instance was lost"
+msgstr "Соединение с удалённым экземпляром было потеряно"
+
+#: ui/network_tab.py:339
+msgid "Error during browser cleanup: {0}"
+msgstr "Ошибка при очистке браузера: {0}"
+
+#: utils/translations.py:45
+msgid "Switched locale to: {0}"
+msgstr "Локаль переключена на: {0}"
+
+#: utils/utils.py:28
+msgid "URL normalization failed | URL: {0} | Error: {1}"
+msgstr "Не удалось нормализовать URL | URL: {0} | Ошибка: {1}"

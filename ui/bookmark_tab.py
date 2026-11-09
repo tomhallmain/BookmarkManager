@@ -11,6 +11,7 @@ from models.bookmark_manager import BookmarkManager
 from models.browser_bookmarks import BrowserBookmarks
 from models.bookmark import Bookmark, BookmarkFolder
 from utils.logger import logger
+from utils.translations import _
 
 class BookmarkTab(QWidget):
     status_message = Signal(str, bool)  # message, is_error
@@ -27,17 +28,17 @@ class BookmarkTab(QWidget):
         browser_layout = QHBoxLayout()
         self.browser_combo = QComboBox()
         self.browser_combo.currentIndexChanged.connect(self.on_browser_changed)
-        refresh_button = QPushButton("Refresh")
+        refresh_button = QPushButton(_("Refresh"))
         refresh_button.clicked.connect(self.refresh_bookmarks)
         
-        browser_layout.addWidget(QLabel("Browser:"))
+        browser_layout.addWidget(QLabel(_("Browser:")))
         browser_layout.addWidget(self.browser_combo)
         browser_layout.addWidget(refresh_button)
         layout.addLayout(browser_layout)
         
         # Bookmark tree
         self.tree = QTreeWidget()
-        self.tree.setHeaderLabel("Bookmarks")
+        self.tree.setHeaderLabel(_("Bookmarks"))
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self.show_context_menu)
         layout.addWidget(self.tree)
@@ -50,7 +51,7 @@ class BookmarkTab(QWidget):
         available_browsers = self.bookmark_manager.load_supported_browsers()
         
         if not available_browsers:
-            QMessageBox.critical(self, "Error", "No browser bookmark paths were found")
+            QMessageBox.critical(self, _("Error"), _("No browser bookmark paths were found"))
             return
         
         for browser in available_browsers:
@@ -76,7 +77,7 @@ class BookmarkTab(QWidget):
         """Refresh bookmarks for the current browser"""
         browser_instance = self.bookmark_manager.get_current_browser_instance()
         if not browser_instance:
-            self.status_message.emit("No browser selected", True)
+            self.status_message.emit(_("No browser selected"), True)
             return
             
         logger.debug("Refreshing bookmarks", browser=browser_instance.browser_type.value)
@@ -84,11 +85,11 @@ class BookmarkTab(QWidget):
             logger.info("Successfully refreshed bookmarks, updating tree view", browser=browser_instance.browser_type.value)
             self.tree.clear()
             self.populate_tree(browser_instance.root_folder)
-            self.status_message.emit("Bookmarks refreshed successfully", False)
+            self.status_message.emit(_("Bookmarks refreshed successfully"), False)
         else:
-            logger.error("Failed to refresh bookmarks", browser=browser_instance.browser_type.value)
-            QMessageBox.critical(self, "Error", "Failed to refresh bookmarks")
-            self.status_message.emit("Failed to refresh bookmarks", True)
+            logger.error(_("Failed to refresh bookmarks"), browser=browser_instance.browser_type.value)
+            QMessageBox.critical(self, _("Error"), _("Failed to refresh bookmarks"))
+            self.status_message.emit(_("Failed to refresh bookmarks"), True)
             
     def on_browser_changed(self, index: int):
         """Handle browser selection change"""
@@ -96,15 +97,15 @@ class BookmarkTab(QWidget):
             browser = self.browser_combo.currentData()
             logger.debug(f"Browser changed to index {index}", browser=browser.value if browser else None)
             self.bookmark_manager.current_browser = browser
-            self.status_message.emit(f"Loading bookmarks for {browser.value}...", False)
+            self.status_message.emit(_("Loading bookmarks for {0}...").format(browser.value), False)
             self.load_bookmarks()
             
     def load_bookmarks(self):
         """Load bookmarks for the selected browser"""
         browser_instance = self.bookmark_manager.get_current_browser_instance()
         if not browser_instance:
-            logger.warning("No browser selected")
-            self.status_message.emit("No browser selected", True)
+            logger.warning(_("No browser selected"))
+            self.status_message.emit(_("No browser selected"), True)
             return
         
         logger.info("Loading bookmarks", browser=browser_instance.browser_type.value)
@@ -112,11 +113,11 @@ class BookmarkTab(QWidget):
             logger.info("Successfully loaded bookmarks, updating tree view", browser=browser_instance.browser_type.value)
             self.tree.clear()
             self.populate_tree(browser_instance.root_folder)
-            self.status_message.emit(f"Loaded bookmarks from {browser_instance.browser_type.value}", False)
+            self.status_message.emit(_("Loaded bookmarks from {0}").format(browser_instance.browser_type.value), False)
         else:
-            logger.error("Failed to load bookmarks", browser=browser_instance.browser_type.value)
-            QMessageBox.critical(self, "Error", f"Failed to load bookmarks for {browser_instance.browser_type.value}")
-            self.status_message.emit("Failed to load bookmarks", True)
+            logger.error(_("Failed to load bookmarks"), browser=browser_instance.browser_type.value)
+            QMessageBox.critical(self, _("Error"), _("Failed to load bookmarks for {0}").format(browser_instance.browser_type.value))
+            self.status_message.emit(_("Failed to load bookmarks"), True)
             
     def populate_tree(self, folder: BookmarkFolder, parent_item: QTreeWidgetItem = None):
         """Populate the tree widget with bookmarks"""
@@ -156,28 +157,28 @@ class BookmarkTab(QWidget):
         
         if isinstance(bookmark_item, Bookmark):
             # Bookmark actions
-            open_action = QAction("Open in Browser", self)
+            open_action = QAction(_("Open in Browser"), self)
             open_action.triggered.connect(lambda: self.open_bookmark(bookmark_item))
             menu.addAction(open_action)
             
-            edit_action = QAction("Edit", self)
+            edit_action = QAction(_("Edit"), self)
             edit_action.triggered.connect(lambda: self.edit_bookmark(bookmark_item))
             menu.addAction(edit_action)
             
-            delete_action = QAction("Delete", self)
+            delete_action = QAction(_("Delete"), self)
             delete_action.triggered.connect(lambda: self.delete_bookmark(item_id))
             menu.addAction(delete_action)
         else:
             # Folder actions
-            add_bookmark_action = QAction("Add Bookmark", self)
+            add_bookmark_action = QAction(_("Add Bookmark"), self)
             add_bookmark_action.triggered.connect(lambda: self.add_bookmark(item_id))
             menu.addAction(add_bookmark_action)
             
-            add_folder_action = QAction("Add Folder", self)
+            add_folder_action = QAction(_("Add Folder"), self)
             add_folder_action.triggered.connect(lambda: self.add_folder(item_id))
             menu.addAction(add_folder_action)
             
-            delete_action = QAction("Delete", self)
+            delete_action = QAction(_("Delete"), self)
             delete_action.triggered.connect(lambda: self.delete_bookmark(item_id))
             menu.addAction(delete_action)
         
@@ -191,18 +192,18 @@ class BookmarkTab(QWidget):
     def edit_bookmark(self, bookmark: Bookmark):
         """Edit a bookmark's title and URL"""
         dialog = QDialog(self)
-        dialog.setWindowTitle("Edit Bookmark")
+        dialog.setWindowTitle(_("Edit Bookmark"))
         layout = QFormLayout(dialog)
         
         title_edit = QLineEdit(bookmark.title)
         url_edit = QLineEdit(bookmark.url)
         
-        layout.addRow("Title:", title_edit)
-        layout.addRow("URL:", url_edit)
+        layout.addRow(_("Title:"), title_edit)
+        layout.addRow(_("URL:"), url_edit)
         
         buttons = QHBoxLayout()
-        ok_button = QPushButton("OK")
-        cancel_button = QPushButton("Cancel")
+        ok_button = QPushButton(_("OK"))
+        cancel_button = QPushButton(_("Cancel"))
         
         ok_button.clicked.connect(dialog.accept)
         cancel_button.clicked.connect(dialog.reject)
@@ -218,23 +219,23 @@ class BookmarkTab(QWidget):
             if browser_instance:
                 browser_instance.save_bookmarks()
                 self.load_bookmarks()
-                self.status_message.emit("Bookmark updated successfully", False)
+                self.status_message.emit(_("Bookmark updated successfully"), False)
                 
     def add_bookmark(self, parent_id: str = None):
         """Add a new bookmark"""
         dialog = QDialog(self)
-        dialog.setWindowTitle("Add Bookmark")
+        dialog.setWindowTitle(_("Add Bookmark"))
         layout = QFormLayout(dialog)
         
         title_edit = QLineEdit()
         url_edit = QLineEdit()
         
-        layout.addRow("Title:", title_edit)
-        layout.addRow("URL:", url_edit)
+        layout.addRow(_("Title:"), title_edit)
+        layout.addRow(_("URL:"), url_edit)
         
         buttons = QHBoxLayout()
-        ok_button = QPushButton("OK")
-        cancel_button = QPushButton("Cancel")
+        ok_button = QPushButton(_("OK"))
+        cancel_button = QPushButton(_("Cancel"))
         
         ok_button.clicked.connect(dialog.accept)
         cancel_button.clicked.connect(dialog.reject)
@@ -253,14 +254,14 @@ class BookmarkTab(QWidget):
                     browser_instance.add_bookmark(title, url, parent_id)
                     browser_instance.save_bookmarks()
                     self.load_bookmarks()
-                    self.status_message.emit("Bookmark added successfully", False)
+                    self.status_message.emit(_("Bookmark added successfully"), False)
             else:
-                QMessageBox.warning(self, "Error", "Title and URL are required")
-                self.status_message.emit("Failed to add bookmark - missing fields", True)
+                QMessageBox.warning(self, _("Error"), _("Title and URL are required"))
+                self.status_message.emit(_("Failed to add bookmark - missing fields"), True)
                 
     def add_folder(self, parent_id: str = None):
         """Add a new folder"""
-        title, ok = QInputDialog.getText(self, "Add Folder", "Enter folder name:")
+        title, ok = QInputDialog.getText(self, _("Add Folder"), _("Enter folder name:"))
         if ok and title:
             browser_instance = self.bookmark_manager.get_current_browser_instance()
             if browser_instance:
@@ -274,7 +275,7 @@ class BookmarkTab(QWidget):
         if browser_instance and browser_instance.delete_item(item_id):
             browser_instance.save_bookmarks()
             self.load_bookmarks()
-            self.status_message.emit("Item deleted successfully", False)
+            self.status_message.emit(_("Item deleted successfully"), False)
         else:
-            QMessageBox.critical(self, "Error", "Failed to delete item")
-            self.status_message.emit("Failed to delete item", True) 
+            QMessageBox.critical(self, _("Error"), _("Failed to delete item"))
+            self.status_message.emit(_("Failed to delete item"), True) 

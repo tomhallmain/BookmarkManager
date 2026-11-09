@@ -1,6 +1,7 @@
 from difflib import SequenceMatcher
 from urllib.parse import urlparse, urlunparse
 from .logger import logger
+from utils.translations import _
 
 def normalize_url(url: str) -> str:
     """
@@ -24,7 +25,7 @@ def normalize_url(url: str) -> str:
         normalized = urlunparse(('', netloc, parsed.path.rstrip('/'), '', '', ''))
         return normalized
     except Exception as e:
-        logger.warning(f"URL normalization failed | URL: {url} | Error: {e}")
+        logger.warning(_("URL normalization failed | URL: {0} | Error: {1}").format(url, e))
         # If URL parsing fails, return the original URL in lowercase
         return url.lower()
 

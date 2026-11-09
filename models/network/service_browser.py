@@ -8,6 +8,7 @@ import socket
 # from nacl.encoding import Base64Encoder
 
 from utils.logger import logger
+from utils.translations import _
 from models.network.network_events import ServiceDiscoveredEvent
 
 
@@ -42,24 +43,24 @@ class NetworkServiceListener(ServiceListener):
                 )
                 self.discovery_handler(event)
                 
-                logger.info(f"Discovered service: {name} at {address}", browser="ServiceBrowser")
+                logger.info(_("Discovered service: {0} at {1}").format(name, address), browser="ServiceBrowser")
         except Exception as e:
-            logger.error(f"Error adding service {name}: {e}", browser="ServiceBrowser")
+            logger.error(_("Error adding service {0}: {1}").format(name, e), browser="ServiceBrowser")
 
     def remove_service(self, zeroconf, type, name):
         try:
             if name in self.services:
                 del self.services[name]
                 del self.last_seen[name]
-                logger.info(f"Service removed: {name}", browser="ServiceBrowser")
+                logger.info(_("Service removed: {0}").format(name), browser="ServiceBrowser")
         except Exception as e:
-            logger.error(f"Error removing service {name}: {e}", browser="ServiceBrowser")
+            logger.error(_("Error removing service {0}: {1}").format(name, e), browser="ServiceBrowser")
 
     def update_service(self, zeroconf, type, name):
         try:
             self.add_service(zeroconf, type, name)
         except Exception as e:
-            logger.error(f"Error updating service {name}: {e}", browser="ServiceBrowser")
+            logger.error(_("Error updating service {0}: {1}").format(name, e), browser="ServiceBrowser")
 
     def cleanup_stale_services(self):
         """Remove services that haven't been seen for a while."""
@@ -70,7 +71,7 @@ class NetworkServiceListener(ServiceListener):
         ]
         
         for name in stale_services:
-            logger.info(f"Removing stale service: {name}", browser="ServiceBrowser")
+            logger.info(_("Removing stale service: {0}").format(name), browser="ServiceBrowser")
             if name in self.services:
                 del self.services[name]
             if name in self.last_seen:
@@ -96,7 +97,7 @@ class ServiceBrowser:
             try:
                 handler(event)
             except Exception as e:
-                logger.error(f"Error in service discovery handler: {e}", browser="ServiceBrowser")
+                logger.error(_("Error in service discovery handler: {0}").format(e), browser="ServiceBrowser")
 
     async def start(self):
         """Start the service browser and its background tasks."""
@@ -120,7 +121,7 @@ class ServiceBrowser:
                     self.listener.cleanup_stale_services()
                 await asyncio.sleep(60)  # Check every minute
             except Exception as e:
-                logger.error(f"Error in cleanup task: {e}", browser="ServiceBrowser")
+                logger.error(_("Error in cleanup task: {0}").format(e), browser="ServiceBrowser")
                 await asyncio.sleep(60)
 
     async def stop(self):
@@ -146,9 +147,9 @@ class ServiceBrowser:
         try:
             self.listener = NetworkServiceListener(self._notify_discovery)
             self.zeroconf.add_service_listener("_bookmarkmanager._tcp.local.", self.listener)
-            logger.info("Service browser started", browser="ServiceBrowser")
+            logger.info(_("Service browser started"), browser="ServiceBrowser")
         except Exception as e:
-            logger.error(f"Failed to start service browser: {e}", browser="ServiceBrowser")
+            logger.error(_("Failed to start service browser: {0}").format(e), browser="ServiceBrowser")
             raise
 
     def cleanup(self):
@@ -157,9 +158,9 @@ class ServiceBrowser:
             try:
                 self.zeroconf.remove_service_listener(self.listener)
             except Exception as e:
-                logger.error(f"Error removing service listener: {e}", browser="ServiceBrowser")
+                logger.error(_("Error removing service listener: {0}").format(e), browser="ServiceBrowser")
         self.zeroconf.close()
-        logger.info("Service browser cleaned up", browser="ServiceBrowser")
+        logger.info(_("Service browser cleaned up"), browser="ServiceBrowser")
 
     def get_available_services(self) -> List[Dict[str, Any]]:
         """Get list of available services."""
@@ -174,7 +175,7 @@ class ServiceBrowser:
                 return None
             return self.listener.services.get(name)
         except Exception as e:
-            logger.error(f"Error getting service {name}: {e}", browser="ServiceBrowser")
+            logger.error(_("Error getting service {0}: {1}").format(name, e), browser="ServiceBrowser")
             return None
 
     def stop_discovery(self):
@@ -183,7 +184,7 @@ class ServiceBrowser:
             if self.listener:
                 self.zeroconf.remove_service_listener(self.listener)
             self.zeroconf.close()
-            logger.info("Service discovery stopped", browser="ServiceBrowser")
+            logger.info(_("Service discovery stopped"), browser="ServiceBrowser")
         except Exception as e:
-            logger.error(f"Error stopping service discovery: {e}", browser="ServiceBrowser")
+            logger.error(_("Error stopping service discovery: {0}").format(e), browser="ServiceBrowser")
             raise 

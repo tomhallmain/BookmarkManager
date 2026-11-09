@@ -11,6 +11,7 @@ import secrets
 import websockets
 
 from utils.logger import logger
+from utils.translations import _
 
 class NetworkClient:
     def __init__(self):
@@ -34,7 +35,7 @@ class NetworkClient:
     async def connect(self, host: str, port: int = 8765):
         """Connect to a remote BookmarkManager instance with enhanced security."""
         if self.connected:
-            logger.warning("Already connected to a peer", browser="NetworkClient")
+            logger.warning(_("Already connected to a peer"), browser="NetworkClient")
             return
 
         try:
@@ -50,20 +51,20 @@ class NetworkClient:
                 peer_public_key = await asyncio.wait_for(self.websocket.recv(), timeout=5.0)
                 self.peer_key = PublicKey(peer_public_key.encode())
             except asyncio.TimeoutError:
-                logger.error("Key exchange timeout", browser="NetworkClient")
+                logger.error(_("Key exchange timeout"), browser="NetworkClient")
                 await self._close_connection()
-                raise ConnectionError("Key exchange timeout")
+                raise ConnectionError(_("Key exchange timeout"))
             
             self.connected = True
             self.reconnect_attempts = 0
-            logger.info(f"Connected to {host}:{port}", browser="NetworkClient")
+            logger.info(_("Connected to {0}:{1}").format(host, port), browser="NetworkClient")
             
             # Start message processing
             asyncio.create_task(self._process_message_queue())
             asyncio.create_task(self._monitor_connection())
             
         except Exception as e:
-            logger.error(f"Failed to connect to {host}:{port}: {e}", browser="NetworkClient")
+            logger.error(_("Failed to connect to {0}:{1}: {2}").format(host, port, e), browser="NetworkClient")
             await self._close_connection()
             raise
 
@@ -79,7 +80,7 @@ class NetworkClient:
                 })
                 await asyncio.sleep(30)  # Ping every 30 seconds
             except Exception as e:
-                logger.error(f"Connection monitoring error: {e}", browser="NetworkClient")
+                logger.error(_("Connection monitoring error: {0}").format(e), browser="NetworkClient")
                 await self._handle_connection_loss()
                 break
 
@@ -88,11 +89,11 @@ class NetworkClient:
         if self.reconnect_attempts < self.max_reconnect_attempts:
             self.reconnect_attempts += 1
             delay = self.reconnect_delay * (2 ** (self.reconnect_attempts - 1))
-            logger.info(f"Attempting to reconnect in {delay} seconds...", browser="NetworkClient")
+            logger.info(_("Attempting to reconnect in {0} seconds...").format(delay), browser="NetworkClient")
             await asyncio.sleep(delay)
             await self.connect(self.websocket.remote_address[0], self.websocket.remote_address[1])
         else:
-            logger.error("Max reconnection attempts reached", browser="NetworkClient")
+            logger.error(_("Max reconnection attempts reached"), browser="NetworkClient")
             self.connected = False
             if hasattr(self, 'connection_lost'):
                 self.connection_lost.emit()
@@ -100,7 +101,7 @@ class NetworkClient:
     async def _send_message(self, message: Dict):
         """Send an encrypted message with security headers."""
         if not self.connected:
-            raise ConnectionError("Not connected to peer")
+            raise ConnectionError(_("Not connected to peer"))
         
         try:
             # Add security headers
@@ -128,7 +129,7 @@ class NetworkClient:
             logger.debug(f"Message sent: {message['type']}", browser="NetworkClient")
             
         except Exception as e:
-            logger.error(f"Failed to send message: {e}", browser="NetworkClient")
+            logger.error(_("Failed to send message: {0}").format(e), browser="NetworkClient")
             raise
 
     def _create_signature(self, message: str) -> str:
@@ -151,7 +152,7 @@ class NetworkClient:
                 "type": "bookmarks",
                 "data": bookmarks
             })
-            raise ConnectionError("Not connected to peer")
+            raise ConnectionError(_("Not connected to peer"))
         
         try:
             await self._send_message({
@@ -159,7 +160,7 @@ class NetworkClient:
                 "data": bookmarks
             })
         except Exception as e:
-            logger.error(f"Failed to send bookmarks: {e}", browser="NetworkClient")
+            logger.error(_("Failed to send bookmarks: {0}").format(e), browser="NetworkClient")
             raise
 
     async def _process_message_queue(self):
@@ -170,14 +171,14 @@ class NetworkClient:
                 try:
                     await self._send_message(message)
                 except Exception as e:
-                    logger.error(f"Failed to process queued message: {e}", browser="NetworkClient")
+                    logger.error(_("Failed to process queued message: {0}").format(e), browser="NetworkClient")
                     self.message_queue.append(message)  # Put back in queue
             await asyncio.sleep(1)
 
     async def receive_bookmarks(self) -> List[Dict]:
         """Receive bookmarks from the connected peer."""
         if not self.connected:
-            raise ConnectionError("Not connected to peer")
+            raise ConnectionError(_("Not connected to peer"))
         
         try:
             message = await asyncio.wait_for(self.websocket.recv(), timeout=self.message_timeout)
@@ -185,34 +186,34 @@ class NetworkClient:
             
             # Verify message format
             if 'data' not in message_data or 'signature' not in message_data:
-                raise ValueError("Invalid message format")
+                raise ValueError(_("Invalid message format"))
             
             # Decrypt and verify
             decrypted = self._decrypt_message(message_data['data'])
             if not self._verify_signature(decrypted, message_data['signature']):
-                raise ValueError("Invalid message signature")
+                raise ValueError(_("Invalid message signature"))
             
             data = json.loads(decrypted)
             
             # Verify session token
             if data.get('session_token') != self.session_token:
-                raise ValueError("Invalid session token")
+                raise ValueError(_("Invalid session token"))
             
             if data['type'] == 'bookmarks':
                 if hasattr(self, 'bookmarks_received'):
                     self.bookmarks_received.emit(data['data'])
                 return data['data']
             else:
-                raise ValueError(f"Unexpected message type: {data['type']}")
+                raise ValueError(_("Unexpected message type: {0}").format(data['type']))
                 
         except Exception as e:
-            logger.error(f"Failed to receive bookmarks: {e}", browser="NetworkClient")
+            logger.error(_("Failed to receive bookmarks: {0}").format(e), browser="NetworkClient")
             raise
 
     def _encrypt_message(self, message: str) -> str:
         """Encrypt a message using the peer's public key."""
         if not self.peer_key:
-            raise ValueError("No peer key available")
+            raise ValueError(_("No peer key available"))
         
         box = Box(self.private_key, self.peer_key)
         encrypted = box.encrypt(message.encode())
@@ -221,7 +222,7 @@ class NetworkClient:
     def _decrypt_message(self, encrypted_message: str) -> str:
         """Decrypt a message using our private key."""
         if not self.peer_key:
-            raise ValueError("No peer key available")
+            raise ValueError(_("No peer key available"))
         
         box = Box(self.private_key, self.peer_key)
         decrypted = box.decrypt(encrypted_message.encode())
@@ -237,7 +238,7 @@ class NetworkClient:
             try:
                 await self.websocket.close()
             except Exception as e:
-                logger.error(f"Error closing connection: {e}", browser="NetworkClient")
+                logger.error(_("Error closing connection: {0}").format(e), browser="NetworkClient")
             finally:
                 self.websocket = None
                 self.peer_key = None

@@ -4,6 +4,7 @@ from models.browser_bookmarks import BrowserBookmarks
 from models.bookmark import BrowserType
 from models.path_manager import PathManager
 from utils.utils import url_similarity, logger
+from utils.translations import _
 
 class BookmarkManager:
     """Manages bookmarks across multiple browsers"""
@@ -55,7 +56,7 @@ class BookmarkManager:
                     available_browsers.append(browser)
         
         if not available_browsers:
-            logger.error("No available browsers found")
+            logger.error(_("No available browsers found"))
             self._available_browsers = []
             return []
         

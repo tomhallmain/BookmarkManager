@@ -14,14 +14,15 @@ from typing import List, Dict
 import threading
 from datetime import datetime
 from models.bookmark import Bookmark, BookmarkFolder
-from models.browser_bookmarks import BrowserBookmarks
+from models.bookmark_manager import BookmarkManager
 
 from utils.logger import logger
+from utils.translations import _
 
 class NetworkTab(QWidget):
     network_status = Signal(str, bool)  # message, is_error
     
-    def __init__(self, network_handler: NetworkHandler, bookmark_manager: BrowserBookmarks):
+    def __init__(self, network_handler: NetworkHandler, bookmark_manager: BookmarkManager):
         super().__init__()
         self.network_handler = network_handler
         self.bookmark_manager = bookmark_manager
@@ -53,7 +54,7 @@ class NetworkTab(QWidget):
         try:
             loop.run_until_complete(self.service_browser.start())
         except Exception as e:
-            logger.error(f"Error starting service browser: {e}", browser="NetworkTab")
+            logger.error(_("Error starting service browser: {0}").format(e), browser="NetworkTab")
         finally:
             loop.close()
 
@@ -65,32 +66,32 @@ class NetworkTab(QWidget):
         layout = QVBoxLayout(self)
         
         # Manual connection section
-        manual_group = QGroupBox("Manual Connection")
+        manual_group = QGroupBox(_("Manual Connection"))
         manual_layout = QHBoxLayout()
         
         self.host_input = QLineEdit()
-        self.host_input.setPlaceholderText("Enter IP address or hostname")
+        self.host_input.setPlaceholderText(_("Enter IP address or hostname"))
         self.port_input = QLineEdit()
-        self.port_input.setPlaceholderText("Port (default: 8765)")
+        self.port_input.setPlaceholderText(_("Port (default: {0})").format(8765))
         self.port_input.setText("8765")
         
-        connect_button = QPushButton("Connect")
+        connect_button = QPushButton(_("Connect"))
         connect_button.clicked.connect(self.connect_manual)
         
-        manual_layout.addWidget(QLabel("Host:"))
+        manual_layout.addWidget(QLabel(_("Host:")))
         manual_layout.addWidget(self.host_input)
-        manual_layout.addWidget(QLabel("Port:"))
+        manual_layout.addWidget(QLabel(_("Port:")))
         manual_layout.addWidget(self.port_input)
         manual_layout.addWidget(connect_button)
         manual_group.setLayout(manual_layout)
         layout.addWidget(manual_group)
         
         # Auto-discovery section
-        auto_group = QGroupBox("Automatic Discovery")
+        auto_group = QGroupBox(_("Automatic Discovery"))
         auto_layout = QVBoxLayout()
         
         self.instance_list = QListWidget()
-        refresh_button = QPushButton("Refresh")
+        refresh_button = QPushButton(_("Refresh"))
         refresh_button.clicked.connect(self.refresh_instances)
         
         auto_layout.addWidget(self.instance_list)
@@ -99,26 +100,26 @@ class NetworkTab(QWidget):
         layout.addWidget(auto_group)
         
         # Bookmarks section
-        bookmarks_group = QGroupBox("Bookmark Operations")
+        bookmarks_group = QGroupBox(_("Bookmark Operations"))
         bookmarks_layout = QVBoxLayout()
         
         # Share options
         share_options = QHBoxLayout()
-        self.share_all_checkbox = QCheckBox("Share All Bookmarks")
+        self.share_all_checkbox = QCheckBox(_("Share All Bookmarks"))
         self.share_all_checkbox.setChecked(True)  # Default to sharing all
         share_options.addWidget(self.share_all_checkbox)
         
         # Sync options
         sync_options = QHBoxLayout()
-        self.sync_checkbox = QCheckBox("Enable Two-Way Sync")
+        self.sync_checkbox = QCheckBox(_("Enable Two-Way Sync"))
         self.sync_checkbox.setChecked(True)  # Default to enabling sync
         sync_options.addWidget(self.sync_checkbox)
         
         # Operation buttons
         buttons_layout = QHBoxLayout()
-        share_button = QPushButton("Share Bookmarks")
+        share_button = QPushButton(_("Share Bookmarks"))
         share_button.clicked.connect(self.share_bookmarks)
-        sync_button = QPushButton("Sync Bookmarks")
+        sync_button = QPushButton(_("Sync Bookmarks"))
         sync_button.clicked.connect(self.sync_bookmarks)
         
         buttons_layout.addWidget(share_button)
@@ -131,7 +132,7 @@ class NetworkTab(QWidget):
         layout.addWidget(bookmarks_group)
         
         # Status section
-        self.status_label = QLabel("Not connected")
+        self.status_label = QLabel(_("Not connected"))
         layout.addWidget(self.status_label)
 
     def setup_timer(self):
@@ -153,7 +154,7 @@ class NetworkTab(QWidget):
         port = self.port_input.text().strip()
         
         if not host:
-            QMessageBox.warning(self, "Error", "Please enter a host address")
+            QMessageBox.warning(self, _("Error"), _("Please enter a host address"))
             return
             
         try:
@@ -168,16 +169,16 @@ class NetworkTab(QWidget):
             ))
             self.load_bookmarks()
         except Exception as e:
-            QMessageBox.critical(self, "Connection Error", str(e))
+            QMessageBox.critical(self, _("Connection Error"), str(e))
             self.connection_status.update_from_event(ConnectionStatusEvent(
-                error_message="Connection failed",
+                error_message=_("Connection failed"),
                 status_type=NetworkConnectionStatusType.ERROR
             ))
 
     def connect_to_instance(self):
         selected = self.instance_list.currentItem()
         if not selected:
-            QMessageBox.warning(self, "Error", "Please select an instance to connect to")
+            QMessageBox.warning(self, _("Error"), _("Please select an instance to connect to"))
             return
             
         service = selected.data(Qt.UserRole)
@@ -189,14 +190,13 @@ class NetworkTab(QWidget):
             ))
             self.load_bookmarks()
         except Exception as e:
-            QMessageBox.critical(self, "Connection Error", str(e))
+            QMessageBox.critical(self, _("Connection Error"), str(e))
             self.connection_status.update_from_event(ConnectionStatusEvent(
-                error_message="Connection failed",
+                error_message=_("Connection failed"),
                 status_type=NetworkConnectionStatusType.ERROR
             ))
 
     def load_bookmarks(self):
-        self.bookmark_list.clear()
         # Load bookmarks from your bookmark manager
         # This is a placeholder - implement your bookmark loading logic
         pass
@@ -206,57 +206,52 @@ class NetworkTab(QWidget):
         try:
             if self.share_all_checkbox.isChecked():
                 # Get all bookmarks from the current browser
-                browser = self.parent().parent().browser_combo.currentData()
+                browser = self.bookmark_manager.current_browser
                 if not browser:
-                    QMessageBox.warning(self, "Warning", "No browser selected")
+                    QMessageBox.warning(self, _("Warning"), _("No browser selected"))
                     return
                 
                 # Get the bookmarks for the current browser
-                bookmarks = self.bookmark_manager.get_browser_bookmarks(browser)
+                browser_instance = self.bookmark_manager.get_browser_instance(browser)
+                bookmarks = browser_instance.get_all_bookmarks() if browser_instance else []
                 if not bookmarks:
-                    QMessageBox.warning(self, "Warning", "No bookmarks to share")
+                    QMessageBox.warning(self, _("Warning"), _("No bookmarks to share"))
                     return
                 
                 # Convert bookmarks to dict format for network transmission
                 bookmark_dicts = [b.to_dict() for b in bookmarks]
                 self.network_client.send_bookmarks(bookmark_dicts, NetworkCallType.SHARE_BOOKMARKS)
-                self.network_status.emit("All bookmarks shared successfully", False)
+                self.network_status.emit(_("All bookmarks shared successfully"), False)
             else:
-                # Share selected bookmarks (existing functionality)
-                selected_items = self.bookmark_list.selectedItems()
-                if not selected_items:
-                    QMessageBox.warning(self, "Error", "Please select bookmarks to share")
-                    return
-                
-                bookmarks = [item.data(Qt.UserRole) for item in selected_items]
-                bookmark_dicts = [b.to_dict() for b in bookmarks]
-                self.network_client.send_bookmarks(bookmark_dicts, NetworkCallType.SHARE_BOOKMARKS)
-                self.network_status.emit("Selected bookmarks shared successfully", False)
+                # NetworkTab has no bookmark list widget to select from.
+                QMessageBox.information(self, _("Share Bookmarks"),
+                                        _("Sharing selected bookmarks is not available yet. Check \"{0}\" to share all bookmarks.").format(_("Share All Bookmarks")))
+                return
                 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to share bookmarks: {e}")
-            self.network_status.emit("Failed to share bookmarks", True)
+            QMessageBox.critical(self, _("Error"), _("Failed to share bookmarks: {0}").format(e))
+            self.network_status.emit(_("Failed to share bookmarks"), True)
 
     def sync_bookmarks(self):
         """Sync bookmarks with connected peers."""
         try:
             if not self.sync_checkbox.isChecked():
-                QMessageBox.warning(self, "Warning", "Two-way sync is disabled")
+                QMessageBox.warning(self, _("Warning"), _("Two-way sync is disabled"))
                 return
                 
             # Get the current browser
-            browser = self.parent().parent().browser_combo.currentData()
+            browser = self.bookmark_manager.current_browser
             if not browser:
-                QMessageBox.warning(self, "Warning", "No browser selected")
+                QMessageBox.warning(self, _("Warning"), _("No browser selected"))
                 return
                 
             # Request remote bookmarks
             self.network_client.request_bookmarks(NetworkCallType.SYNC_BOOKMARKS)
-            self.network_status.emit("Sync initiated", False)
+            self.network_status.emit(_("Sync initiated"), False)
             
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to sync bookmarks: {e}")
-            self.network_status.emit("Failed to sync bookmarks", True)
+            QMessageBox.critical(self, _("Error"), _("Failed to sync bookmarks: {0}").format(e))
+            self.network_status.emit(_("Failed to sync bookmarks"), True)
 
     def handle_bookmarks_received(self, bookmark_dicts: List[Dict], call_type: NetworkCallType):
         """Handle received bookmarks from peers."""
@@ -270,13 +265,14 @@ class NetworkTab(QWidget):
                     remote_bookmarks = [Bookmark.from_dict(d) for d in bookmark_dicts]
                 
                 # Get the current browser
-                browser = self.parent().parent().browser_combo.currentData()
+                browser = self.bookmark_manager.current_browser
                 if not browser:
-                    QMessageBox.warning(self, "Warning", "No browser selected")
+                    QMessageBox.warning(self, _("Warning"), _("No browser selected"))
                     return
                 
                 # Get local bookmarks
-                local_bookmarks = self.bookmark_manager.get_browser_bookmarks(browser)
+                browser_instance = self.bookmark_manager.get_browser_instance(browser)
+                local_bookmarks = browser_instance.get_all_bookmarks() if browser_instance else []
                 
                 # Merge bookmarks using the bookmark manager
                 self.bookmark_manager.merge_bookmarks(local_bookmarks, remote_bookmarks)
@@ -289,26 +285,26 @@ class NetworkTab(QWidget):
                 
                 QMessageBox.information(
                     self, 
-                    "Sync Complete", 
-                    f"Successfully synced {len(bookmark_dicts)} bookmarks with local collection"
+                    _("Sync Complete"), 
+                    _("Successfully synced {0} bookmarks with local collection").format(len(bookmark_dicts))
                 )
             else:
                 QMessageBox.information(
                     self, 
-                    "Bookmarks Received", 
-                    f"Received {len(bookmark_dicts)} bookmarks from remote instance"
+                    _("Bookmarks Received"), 
+                    _("Received {0} bookmarks from remote instance").format(len(bookmark_dicts))
                 )
                 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to process received bookmarks: {e}")
-            self.status_label.setText("Failed to process received bookmarks")
+            QMessageBox.critical(self, _("Error"), _("Failed to process received bookmarks: {0}").format(e))
+            self.status_label.setText(_("Failed to process received bookmarks"))
 
     def handle_connection_lost(self):
         self.connection_status.update_from_event(ConnectionStatusEvent(
-            error_message="Connection lost",
+            error_message=_("Connection lost"),
             status_type=NetworkConnectionStatusType.DISCONNECTED
         ))
-        QMessageBox.warning(self, "Connection Lost", "The connection to the remote instance was lost")
+        QMessageBox.warning(self, _("Connection Lost"), _("The connection to the remote instance was lost"))
 
     def handle_service_discovered(self, event: ServiceDiscoveredEvent):
         """Handle a discovered service event"""
@@ -340,7 +336,7 @@ class NetworkTab(QWidget):
         try:
             loop.run_until_complete(self._cleanup_browser())
         except Exception as e:
-            logger.error(f"Error during browser cleanup: {e}", browser="NetworkTab")
+            logger.error(_("Error during browser cleanup: {0}").format(e), browser="NetworkTab")
         finally:
             loop.close()
 

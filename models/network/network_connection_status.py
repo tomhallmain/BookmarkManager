@@ -1,15 +1,17 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from typing import Optional, Dict, List
 from models.network.network_events import ServiceDiscoveredEvent, ConnectionStatusEvent, NetworkConnectionStatusType
 import json
 from datetime import datetime
+
+from utils.translations import _
 
 @dataclass
 class NetworkConnectionStatus:
     """Manages the state of network connections and services"""
     
     connected_service: Optional[Dict] = None
-    last_status_message: str = "Not connected"
+    last_status_message: str = field(default_factory=lambda: _("Not connected"))
     last_discovered_service: Optional[Dict] = None
     status_type: NetworkConnectionStatusType = NetworkConnectionStatusType.DISCONNECTED
     service_history: Dict[str, Dict] = None  # service_address -> {status, timestamp, service_info}
@@ -30,16 +32,16 @@ class NetworkConnectionStatus:
         
         if event.status_type == NetworkConnectionStatusType.CONNECTED:
             self.connected_service = event.service_info
-            self.last_status_message = f"Connected to {event.service_info['name']} at {event.service_info['address']}"
+            self.last_status_message = _("Connected to {0} at {1}").format(event.service_info['name'], event.service_info['address'])
             self._update_service_history(event.service_info['address'], event)
         elif event.status_type == NetworkConnectionStatusType.ERROR:
             self.connected_service = None
-            self.last_status_message = event.error_message if event.error_message else "Connection error"
+            self.last_status_message = event.error_message if event.error_message else _("Connection error")
             if event.service_info:
                 self._update_service_history(event.service_info['address'], event)
         else:  # DISCONNECTED
             self.connected_service = None
-            self.last_status_message = "Not connected"
+            self.last_status_message = _("Not connected")
             if event.service_info:
                 self._update_service_history(event.service_info['address'], event)
             
@@ -53,7 +55,7 @@ class NetworkConnectionStatus:
         }
         self.last_discovered_service = service_info
         self.status_type = NetworkConnectionStatusType.DISCOVERED
-        self.last_status_message = f"Discovered service: {event.name} at {event.address}"
+        self.last_status_message = _("Discovered service: {0} at {1}").format(event.name, event.address)
         self._update_service_history(f"{event.address}:{event.port}", ConnectionStatusEvent(
             service_info=service_info,
             status_type=NetworkConnectionStatusType.DISCOVERED
@@ -107,7 +109,7 @@ class NetworkConnectionStatus:
         """Create a status from a dictionary"""
         return cls(
             connected_service=data.get('connected_service'),
-            last_status_message=data.get('last_status_message', "Not connected"),
+            last_status_message=data.get('last_status_message', _("Not connected")),
             last_discovered_service=data.get('last_discovered_service'),
             status_type=NetworkConnectionStatusType(data.get('status_type', NetworkConnectionStatusType.DISCONNECTED.value)),
             service_history=data.get('service_history', {})

@@ -14,6 +14,7 @@ import websockets
 from zeroconf import ServiceInfo, Zeroconf
 
 from utils.logger import logger
+from utils.translations import _
 from models.network.network_events import ServiceDiscoveredEvent, ConnectionStatusEvent
 
 class NetworkHandler:
@@ -62,7 +63,7 @@ class NetworkHandler:
             try:
                 handler(event)
             except Exception as e:
-                logger.error(f"Error in service discovery handler: {e}", browser="NetworkHandler")
+                logger.error(_("Error in service discovery handler: {0}").format(e), browser="NetworkHandler")
 
     def _notify_connection_status(self, event: ConnectionStatusEvent):
         """Notify all registered handlers of a connection status event"""
@@ -70,7 +71,7 @@ class NetworkHandler:
             try:
                 handler(event)
             except Exception as e:
-                logger.error(f"Error in connection status handler: {e}", browser="NetworkHandler")
+                logger.error(_("Error in connection status handler: {0}").format(e), browser="NetworkHandler")
 
     async def start(self):
         """Start the network handler and its background tasks."""
@@ -101,12 +102,12 @@ class NetworkHandler:
                     last_message = state.get('last_message')
                     
                     if last_message and (now - last_message) > stale_threshold:
-                        logger.info(f"Cleaning up stale connection: {address}", browser="NetworkHandler")
+                        logger.info(_("Cleaning up stale connection: {0}").format(address), browser="NetworkHandler")
                         await self._close_connection(address)
                 
                 await asyncio.sleep(60)  # Check every minute
             except Exception as e:
-                logger.error(f"Error in cleanup task: {e}", browser="NetworkHandler")
+                logger.error(_("Error in cleanup task: {0}").format(e), browser="NetworkHandler")
                 await asyncio.sleep(60)
 
     async def _cleanup_security_data(self):
@@ -126,7 +127,7 @@ class NetworkHandler:
                 
                 await asyncio.sleep(300)  # Check every 5 minutes
             except Exception as e:
-                logger.error(f"Error in security cleanup task: {e}", browser="NetworkHandler")
+                logger.error(_("Error in security cleanup task: {0}").format(e), browser="NetworkHandler")
                 await asyncio.sleep(60)
 
     async def stop(self):
@@ -144,7 +145,7 @@ class NetworkHandler:
         await asyncio.gather(*self._cleanup_tasks, return_exceptions=True)
         
         # Clean up resources
-        await self.cleanup()
+        self.cleanup()
 
     def _setup_service_discovery(self):
         """Set up Zeroconf service discovery for the application."""
@@ -158,9 +159,9 @@ class NetworkHandler:
                 properties=desc,
             )
             self.zeroconf.register_service(self.service_info)
-            logger.info("Service discovery setup complete", browser="NetworkHandler")
+            logger.info(_("Service discovery setup complete"), browser="NetworkHandler")
         except Exception as e:
-            logger.error(f"Failed to setup service discovery: {e}", browser="NetworkHandler")
+            logger.error(_("Failed to setup service discovery: {0}").format(e), browser="NetworkHandler")
             raise
 
     async def start_server(self):
@@ -176,10 +177,10 @@ class NetworkHandler:
                 max_size=self.max_message_size,
                 max_queue=32
             ):
-                logger.info(f"WebSocket server started on port {self.port}", browser="NetworkHandler")
+                logger.info(_("WebSocket server started on port {0}").format(self.port), browser="NetworkHandler")
                 await asyncio.Future()  # run forever
         except Exception as e:
-            logger.error(f"WebSocket server error: {e}", browser="NetworkHandler")
+            logger.error(_("WebSocket server error: {0}").format(e), browser="NetworkHandler")
             raise
 
     async def _handle_connection(self, websocket, path):
@@ -188,7 +189,7 @@ class NetworkHandler:
         
         # Security checks
         if self._is_blacklisted(address):
-            logger.warning(f"Rejected connection from blacklisted address: {address}", browser="NetworkHandler")
+            logger.warning(_("Rejected connection from blacklisted address: {0}").format(address), browser="NetworkHandler")
             await websocket.close(4001, "Connection rejected")
             return
         
@@ -197,7 +198,7 @@ class NetworkHandler:
             return
         
         if len(self.connections) >= self.max_connections:
-            logger.warning(f"Rejected connection: maximum connections reached", browser="NetworkHandler")
+            logger.warning(_("Rejected connection: maximum connections reached"), browser="NetworkHandler")
             await websocket.close(4003, "Server at capacity")
             return
         
@@ -207,7 +208,7 @@ class NetworkHandler:
                 peer_public_key = await asyncio.wait_for(websocket.recv(), timeout=10.0)
                 peer_key = PublicKey(peer_public_key.encode())
             except asyncio.TimeoutError:
-                logger.warning(f"Key exchange timeout from {address}", browser="NetworkHandler")
+                logger.warning(_("Key exchange timeout from {0}").format(address), browser="NetworkHandler")
                 await websocket.close(4004, "Key exchange timeout")
                 return
             
@@ -226,7 +227,7 @@ class NetworkHandler:
                 'session_token': secrets.token_hex(16)
             }
             
-            logger.info(f"New connection from {address}", browser="NetworkHandler")
+            logger.info(_("New connection from {0}").format(address), browser="NetworkHandler")
             
             # Handle messages
             async for message in websocket:
@@ -241,13 +242,13 @@ class NetworkHandler:
                     
                     await self._handle_message(websocket, message)
                 except Exception as e:
-                    logger.error(f"Error handling message from {address}: {e}", browser="NetworkHandler")
+                    logger.error(_("Error handling message from {0}: {1}").format(address, e), browser="NetworkHandler")
                     break
                 
         except websockets.exceptions.ConnectionClosed:
-            logger.info(f"Connection closed by {address}", browser="NetworkHandler")
+            logger.info(_("Connection closed by {0}").format(address), browser="NetworkHandler")
         except Exception as e:
-            logger.error(f"Connection error with {address}: {e}", browser="NetworkHandler")
+            logger.error(_("Connection error with {0}: {1}").format(address, e), browser="NetworkHandler")
         finally:
             await self._close_connection(address)
 
@@ -257,14 +258,14 @@ class NetworkHandler:
             try:
                 await self.connections[address].close()
             except Exception as e:
-                logger.error(f"Error closing connection to {address}: {e}", browser="NetworkHandler")
+                logger.error(_("Error closing connection to {0}: {1}").format(address, e), browser="NetworkHandler")
             finally:
                 del self.connections[address]
         if address in self.peer_keys:
             del self.peer_keys[address]
         if address in self.connection_states:
             del self.connection_states[address]
-        logger.info(f"Connection to {address} closed and cleaned up", browser="NetworkHandler")
+        logger.info(_("Connection to {0} closed and cleaned up").format(address), browser="NetworkHandler")
 
     def _validate_message(self, data: Dict) -> bool:
         """Validate incoming message structure."""
@@ -329,10 +330,10 @@ class NetworkHandler:
             }))
             
         except json.JSONDecodeError:
-            logger.error("Invalid JSON message", browser="NetworkHandler")
+            logger.error(_("Invalid JSON message"), browser="NetworkHandler")
             await websocket.close(4007, "Invalid message format")
         except Exception as e:
-            logger.error(f"Error processing message: {e}", browser="NetworkHandler")
+            logger.error(_("Error processing message: {0}").format(e), browser="NetworkHandler")
             await websocket.close(4008, str(e))
 
     async def send_message(self, peer_address: str, message: str):
@@ -345,7 +346,7 @@ class NetworkHandler:
             await self.connections[peer_address].send(encrypted)
             self.connection_states[peer_address]['last_message'] = datetime.now()
         except Exception as e:
-            logger.error(f"Failed to send message to {peer_address}: {e}", browser="NetworkHandler")
+            logger.error(_("Failed to send message to {0}: {1}").format(peer_address, e), browser="NetworkHandler")
             raise
 
     def cleanup(self):
@@ -354,14 +355,14 @@ class NetworkHandler:
             try:
                 self.zeroconf.unregister_service(self.service_info)
             except Exception as e:
-                logger.error(f"Error unregistering service: {e}", browser="NetworkHandler")
+                logger.error(_("Error unregistering service: {0}").format(e), browser="NetworkHandler")
         self.zeroconf.close()
         
         # Close all connections
         for address in list(self.connections.keys()):
             asyncio.create_task(self._close_connection(address))
         
-        logger.info("Network handler cleaned up", browser="NetworkHandler")
+        logger.info(_("Network handler cleaned up"), browser="NetworkHandler")
 
     def _encrypt_message(self, message: str, peer_address: str) -> str:
         """Encrypt a message for a specific peer."""
@@ -405,7 +406,7 @@ class NetworkHandler:
             attempts['count'] += 1
             if attempts['count'] > 5:  # More than 5 attempts in a minute
                 self.blacklist[address] = now + self.blacklist_duration
-                logger.warning(f"Blacklisted {address} for suspicious connection attempts", browser="NetworkHandler")
+                logger.warning(_("Blacklisted {0} for suspicious connection attempts").format(address), browser="NetworkHandler")
                 return False
         else:
             # Reset counter after a minute
@@ -427,7 +428,7 @@ class NetworkHandler:
             return True
         
         if messages >= self.rate_limit:
-            logger.warning(f"Rate limit exceeded for {address}", browser="NetworkHandler")
+            logger.warning(_("Rate limit exceeded for {0}").format(address), browser="NetworkHandler")
             return False
         
         state['message_count'] = messages + 1
@@ -441,7 +442,7 @@ class NetworkHandler:
         
         avg_size = sum(self.message_sizes[address]) / len(self.message_sizes[address])
         if size > self.max_message_size or size > avg_size * 3:
-            logger.warning(f"Suspicious message size from {address}: {size} bytes", browser="NetworkHandler")
+            logger.warning(_("Suspicious message size from {0}: {1} bytes").format(address, size), browser="NetworkHandler")
             return False
         
         return True 

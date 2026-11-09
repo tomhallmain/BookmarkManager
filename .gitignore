@@ -5,6 +5,7 @@
 __pycache__/
 temp
 logs/*
+*.log
 
 Bookmarks.plist
 

@@ -13,6 +13,7 @@ from models.browser_bookmarks import BrowserBookmarks
 from models.bookmark import Bookmark, BookmarkFolder
 from ui.cross_browser_tab import CrossBrowserTab
 from utils.logger import logger
+from utils.translations import _
 from ui.network_tab import NetworkTab
 from ui.bookmark_tab import BookmarkTab
 from models.network.network_handler import NetworkHandler
@@ -27,24 +28,24 @@ class BookmarkDialog(QDialog):
     def __init__(self, parent=None, bookmark=None):
         super().__init__(parent)
         self.bookmark = bookmark
-        self.setWindowTitle("Add Bookmark" if not bookmark else "Edit Bookmark")
+        self.setWindowTitle(_("Add Bookmark") if not bookmark else _("Edit Bookmark"))
         
         layout = QFormLayout(self)
         
         # Title field
         self.title_input = QLineEdit()
         self.title_input.setText(bookmark.title if bookmark else "")
-        layout.addRow("Title:", self.title_input)
+        layout.addRow(_("Title:"), self.title_input)
         
         # URL field
         self.url_input = QLineEdit()
         self.url_input.setText(bookmark.url if bookmark else "")
-        layout.addRow("URL:", self.url_input)
+        layout.addRow(_("URL:"), self.url_input)
         
         # Description field
         self.description_input = QLineEdit()
         self.description_input.setText(bookmark.description if bookmark and bookmark.description else "")
-        layout.addRow("Description:", self.description_input)
+        layout.addRow(_("Description:"), self.description_input)
         
         # Buttons
         buttons = QDialogButtonBox(
@@ -69,7 +70,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Bookmark Manager")
+        self.setWindowTitle(_("Bookmark Manager"))
         self.setGeometry(100, 100, 1200, 800)
         
         # Initialize app style
@@ -91,13 +92,13 @@ class MainWindow(QMainWindow):
         status_layout = QHBoxLayout()
         
         # Main status label
-        self.status_label = QLabel("Ready")
+        self.status_label = QLabel(_("Ready"))
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setStyleSheet(self.app_style.get_status_style())
         self.status_label.setMinimumHeight(30)
         
         # Network status label
-        self.network_status_label = QLabel("Network: Not connected")
+        self.network_status_label = QLabel(_("Network: {0}").format(_("Not connected")))
         self.network_status_label.setAlignment(Qt.AlignCenter)
         self.network_status_label.setStyleSheet(self.app_style.get_status_style(is_disabled=True))
         self.network_status_label.setMinimumHeight(30)
@@ -116,9 +117,9 @@ class MainWindow(QMainWindow):
         self.cross_browser_tab = CrossBrowserTab(self.bookmark_manager)
         
         # Add tabs
-        self.tab_widget.addTab(self.bookmark_tab, "Bookmarks")
-        self.tab_widget.addTab(self.network_tab, "Network")
-        self.tab_widget.addTab(self.cross_browser_tab, "Cross-Browser")
+        self.tab_widget.addTab(self.bookmark_tab, _("Bookmarks"))
+        self.tab_widget.addTab(self.network_tab, _("Network"))
+        self.tab_widget.addTab(self.cross_browser_tab, _("Cross-Browser"))
         
         # Connect the status signals to the status labels
         self.bookmark_tab.status_message.connect(self.show_status)
@@ -133,7 +134,7 @@ class MainWindow(QMainWindow):
         self.network_thread.start()
         
         # Show initial loading status
-        self.show_status("Loading bookmarks...", False)
+        self.show_status(_("Loading bookmarks..."), False)
         
         # Load bookmarks after a short delay to ensure UI is ready
         QTimer.singleShot(100, self.cross_browser_tab.load_all_browsers)
@@ -145,13 +146,13 @@ class MainWindow(QMainWindow):
         try:
             loop.run_until_complete(self.network_handler.start())
         except Exception as e:
-            logger.error(f"Error in network handler: {e}", browser="MainWindow")
+            logger.error(_("Error in network handler: {0}").format(e), browser="MainWindow")
         finally:
             loop.close()
             
     def closeEvent(self, event):
         """Handle window close event"""
-        logger.info("Main window closing, cleaning up resources")
+        logger.info(_("Main window closing, cleaning up resources"))
         
         # Stop network handler in a separate thread
         stop_thread = threading.Thread(target=self._stop_network_handler)
@@ -161,7 +162,7 @@ class MainWindow(QMainWindow):
         
         # Only save bookmarks if they've been modified
         if self.bookmark_manager.is_modified:
-            logger.info("Saving modified bookmarks before closing")
+            logger.info(_("Saving modified bookmarks before closing"))
             self.bookmark_manager.save_all_bookmarks()
         
         event.accept()
@@ -173,155 +174,9 @@ class MainWindow(QMainWindow):
         try:
             loop.run_until_complete(self.network_handler.stop())
         except Exception as e:
-            logger.error(f"Error stopping network handler: {e}", browser="MainWindow")
+            logger.error(_("Error stopping network handler: {0}").format(e), browser="MainWindow")
         finally:
             loop.close()
-
-    def populate_tree(self, folder: BookmarkFolder, parent_item: QTreeWidgetItem = None):
-        """Populate the tree widget with bookmarks"""
-        if parent_item is None:
-            parent_item = self.tree
-        
-        for child in folder.children:
-            if isinstance(child, BookmarkFolder):
-                folder_item = QTreeWidgetItem(parent_item)
-                folder_item.setText(0, child.title)
-                folder_item.setData(0, Qt.UserRole, child.id)
-                folder_item.setIcon(0, QIcon("icons/folder.png"))
-                self.populate_tree(child, folder_item)
-            else:
-                bookmark_item = QTreeWidgetItem(parent_item)
-                bookmark_item.setText(0, child.title)
-                bookmark_item.setData(0, Qt.UserRole, child.id)
-                bookmark_item.setIcon(0, QIcon("icons/bookmark.png"))
-    
-    def show_context_menu(self, position):
-        """Show context menu for the selected item"""
-        item = self.tree.itemAt(position)
-        if not item:
-            return
-        
-        menu = QMenu()
-        
-        # Get the bookmark/folder ID from the item
-        item_id = item.data(0, Qt.UserRole)
-        
-        # Find the corresponding bookmark/folder
-        bookmark_item = self.bookmark_manager.root_folder.find_child(item_id)
-        
-        if isinstance(bookmark_item, Bookmark):
-            # Bookmark actions
-            open_action = QAction("Open in Browser", self)
-            open_action.triggered.connect(lambda: self.open_bookmark(bookmark_item))
-            menu.addAction(open_action)
-            
-            edit_action = QAction("Edit", self)
-            edit_action.triggered.connect(lambda: self.edit_bookmark(bookmark_item))
-            menu.addAction(edit_action)
-            
-            delete_action = QAction("Delete", self)
-            delete_action.triggered.connect(lambda: self.delete_bookmark(item_id))
-            menu.addAction(delete_action)
-        else:
-            # Folder actions
-            add_bookmark_action = QAction("Add Bookmark", self)
-            add_bookmark_action.triggered.connect(lambda: self.add_bookmark(item_id))
-            menu.addAction(add_bookmark_action)
-            
-            add_folder_action = QAction("Add Folder", self)
-            add_folder_action.triggered.connect(lambda: self.add_folder(item_id))
-            menu.addAction(add_folder_action)
-            
-            delete_action = QAction("Delete", self)
-            delete_action.triggered.connect(lambda: self.delete_bookmark(item_id))
-            menu.addAction(delete_action)
-        
-        menu.exec_(self.tree.mapToGlobal(position))
-    
-    def open_bookmark(self, bookmark: Bookmark):
-        """Open the bookmark in the default browser"""
-        import webbrowser
-        webbrowser.open(bookmark.url)
-    
-    def edit_bookmark(self, bookmark: Bookmark):
-        """Edit a bookmark's title and URL"""
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Edit Bookmark")
-        layout = QFormLayout(dialog)
-        
-        title_edit = QLineEdit(bookmark.title)
-        url_edit = QLineEdit(bookmark.url)
-        
-        layout.addRow("Title:", title_edit)
-        layout.addRow("URL:", url_edit)
-        
-        buttons = QHBoxLayout()
-        ok_button = QPushButton("OK")
-        cancel_button = QPushButton("Cancel")
-        
-        ok_button.clicked.connect(dialog.accept)
-        cancel_button.clicked.connect(dialog.reject)
-        
-        buttons.addWidget(ok_button)
-        buttons.addWidget(cancel_button)
-        layout.addRow(buttons)
-        
-        if dialog.exec_() == QDialog.Accepted:
-            bookmark.title = title_edit.text()
-            bookmark.url = url_edit.text()
-            self.bookmark_manager.save_bookmarks()
-            self.load_bookmarks()
-    
-    def add_bookmark(self, parent_id: str = None):
-        """Add a new bookmark"""
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Add Bookmark")
-        layout = QFormLayout(dialog)
-        
-        title_edit = QLineEdit()
-        url_edit = QLineEdit()
-        
-        layout.addRow("Title:", title_edit)
-        layout.addRow("URL:", url_edit)
-        
-        buttons = QHBoxLayout()
-        ok_button = QPushButton("OK")
-        cancel_button = QPushButton("Cancel")
-        
-        ok_button.clicked.connect(dialog.accept)
-        cancel_button.clicked.connect(dialog.reject)
-        
-        buttons.addWidget(ok_button)
-        buttons.addWidget(cancel_button)
-        layout.addRow(buttons)
-        
-        if dialog.exec_() == QDialog.Accepted:
-            title = title_edit.text()
-            url = url_edit.text()
-            
-            if title and url:
-                self.bookmark_manager.add_bookmark(title, url, parent_id)
-                self.bookmark_manager.save_bookmarks()
-                self.load_bookmarks()
-    
-    def add_folder(self, parent_id: str = None):
-        """Add a new folder"""
-        title, ok = QInputDialog.getText(self, "Add Folder", "Enter folder name:")
-        if ok and title:
-            self.bookmark_manager.add_folder(title, parent_id)
-            self.bookmark_manager.save_bookmarks()
-            self.load_bookmarks()
-    
-    def delete_bookmark(self, item_id: str):
-        """Delete a bookmark or folder"""
-        if self.bookmark_manager.delete_item(item_id):
-            self.bookmark_manager.save_bookmarks()
-            self.load_bookmarks()
-    
-    def open_cross_browser_window(self):
-        """Open the cross-browser operations window"""
-        self.cross_browser_window = CrossBrowserWindow(self)
-        self.cross_browser_window.show()
 
     def show_status(self, message: str, is_error: bool = False):
         """Show a status message in the status label"""
@@ -337,9 +192,9 @@ class MainWindow(QMainWindow):
         self.status_label.show()
         
         # Only clear temporary status messages
-        if message != "Ready":
+        if message != _("Ready"):
             # Clear the status after 5 seconds
-            QTimer.singleShot(5000, lambda: self.show_status("Ready", False))
+            QTimer.singleShot(5000, lambda: self.show_status(_("Ready"), False))
 
     def show_network_status(self, message: str, is_error: bool = False):
         """Show a network status message in the network status label"""
@@ -349,21 +204,21 @@ class MainWindow(QMainWindow):
             return
             
         logger.debug(f"Showing network status: {message} (error: {is_error})")
-        self.network_status_label.setText(f"Network: {message}")
+        self.network_status_label.setText(_("Network: {0}").format(message))
         
         # Set style based on status
-        is_disabled = message == "Not connected"
+        is_disabled = message == _("Not connected")
         self.network_status_label.setStyleSheet(self.app_style.get_status_style(is_error=is_error, is_disabled=is_disabled))
         self.network_status_label.show()
         
         # Only clear temporary network status messages
-        if message != "Not connected":
+        if message != _("Not connected"):
             # Clear the status after 5 seconds
-            QTimer.singleShot(5000, lambda: self.show_network_status("Not connected", False))
+            QTimer.singleShot(5000, lambda: self.show_network_status(_("Not connected"), False))
 
     def handle_service_discovered(self, service_info: dict):
         """Handle service discovery events"""
-        message = f"Discovered service: {service_info['name']} at {service_info['address']}"
+        message = _("Discovered service: {0} at {1}").format(service_info['name'], service_info['address'])
         self.show_network_status(message, False)
 
     def emit_status(self, message: str, is_error: bool = False):

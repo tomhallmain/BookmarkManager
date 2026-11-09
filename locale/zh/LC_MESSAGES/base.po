@@ -1,0 +1,765 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"POT-Creation-Date: 2026-11-09 16:41-0500\n"
+"PO-Revision-Date: 2026-11-09 16:41-0500\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
+"Language-Team: zh Team <<EMAIL>>\n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: models/bookmark_manager.py:59
+msgid "No available browsers found"
+msgstr "未找到可用的浏览器"
+
+#: models/browser_bookmarks.py:36
+msgid "No bookmark paths found"
+msgstr "未找到书签路径"
+
+#: models/browser_bookmarks.py:42
+msgid "No bookmark file found at \"{0}\""
+msgstr "未在 \"{0}\" 找到书签文件"
+
+#: models/browser_bookmarks.py:46
+msgid "Bookmark path at \"{0}\" is not a file"
+msgstr "书签路径“{0}”不是文件"
+
+#: models/browser_bookmarks.py:51
+msgid "No read access to bookmark file at \"{0}\""
+msgstr "没有对书签文件“{0}”的读取权限"
+
+#: models/browser_bookmarks.py:57 ui/bookmark_tab.py:118
+#: ui/bookmark_tab.py:120
+msgid "Failed to load bookmarks"
+msgstr "加载书签失败"
+
+#: models/browser_bookmarks.py:63
+msgid "Error checking bookmark path: {0}"
+msgstr "检查书签路径时出错: {0}"
+
+#: models/browser_bookmarks.py:69
+msgid "No root folder found when checking for bookmarks"
+msgstr "检查书签时未找到根文件夹"
+
+#: models/browser_bookmarks.py:92 ui/bookmark_tab.py:90 ui/bookmark_tab.py:91
+#: ui/bookmark_tab.py:92
+msgid "Failed to refresh bookmarks"
+msgstr "刷新书签失败"
+
+#: models/browser_bookmarks.py:141
+msgid "Error loading bookmarks: {0}"
+msgstr "加载书签时出错: {0}"
+
+#: models/browser_bookmarks.py:159
+msgid "Error saving bookmarks: {0}"
+msgstr "保存书签时出错：{0}"
+
+#: models/network/network_client.py:38
+msgid "Already connected to a peer"
+msgstr "已连接到对等节点"
+
+#: models/network/network_client.py:54 models/network/network_client.py:56
+msgid "Key exchange timeout"
+msgstr "密钥交换超时"
+
+#: models/network/network_client.py:60
+msgid "Connected to {0}:{1}"
+msgstr "已连接到 {0}:{1}"
+
+#: models/network/network_client.py:67
+msgid "Failed to connect to {0}:{1}: {2}"
+msgstr "连接到 {0}:{1} 失败: {2}"
+
+#: models/network/network_client.py:83
+msgid "Connection monitoring error: {0}"
+msgstr "连接监控错误：{0}"
+
+#: models/network/network_client.py:92
+msgid "Attempting to reconnect in {0} seconds..."
+msgstr "正在尝试在 {0} 秒后重新连接..."
+
+#: models/network/network_client.py:96
+msgid "Max reconnection attempts reached"
+msgstr "已达到最大重连尝试次数"
+
+#: models/network/network_client.py:104 models/network/network_client.py:155
+#: models/network/network_client.py:181
+msgid "Not connected to peer"
+msgstr "未连接到对等方"
+
+#: models/network/network_client.py:132
+msgid "Failed to send message: {0}"
+msgstr "发送消息失败: {0}"
+
+#: models/network/network_client.py:163
+msgid "Failed to send bookmarks: {0}"
+msgstr "发送书签失败: {0}"
+
+#: models/network/network_client.py:174
+msgid "Failed to process queued message: {0}"
+msgstr "处理排队的消息失败: {0}"
+
+#: models/network/network_client.py:189
+msgid "Invalid message format"
+msgstr "无效的消息格式"
+
+#: models/network/network_client.py:194
+msgid "Invalid message signature"
+msgstr "消息签名无效"
+
+#: models/network/network_client.py:200
+msgid "Invalid session token"
+msgstr "会话令牌无效"
+
+#: models/network/network_client.py:207
+msgid "Unexpected message type: {0}"
+msgstr "意外的消息类型: {0}"
+
+#: models/network/network_client.py:210
+msgid "Failed to receive bookmarks: {0}"
+msgstr "获取书签失败: {0}"
+
+#: models/network/network_client.py:216 models/network/network_client.py:225
+msgid "No peer key available"
+msgstr "没有可用的 peer 密钥"
+
+#: models/network/network_client.py:241
+msgid "Error closing connection: {0}"
+msgstr "关闭连接时出错: {0}"
+
+#: models/network/network_connection_status.py:14
+#: models/network/network_connection_status.py:44
+#: models/network/network_connection_status.py:112 ui/main_window.py:101
+#: ui/main_window.py:210 ui/main_window.py:215 ui/main_window.py:217
+#: ui/network_tab.py:135
+msgid "Not connected"
+msgstr "未连接"
+
+#: models/network/network_connection_status.py:35
+msgid "Connected to {0} at {1}"
+msgstr "已连接至 {0} 于 {1}"
+
+#: models/network/network_connection_status.py:39
+msgid "Connection error"
+msgstr "连接错误"
+
+#: models/network/network_connection_status.py:58
+#: models/network/service_browser.py:46 ui/main_window.py:221
+msgid "Discovered service: {0} at {1}"
+msgstr "已发现服务：{0} 位于 {1}"
+
+#: models/network/network_handler.py:66 models/network/service_browser.py:100
+msgid "Error in service discovery handler: {0}"
+msgstr "服务发现处理程序错误：{0}"
+
+#: models/network/network_handler.py:74
+msgid "Error in connection status handler: {0}"
+msgstr "连接状态处理程序错误：{0}"
+
+#: models/network/network_handler.py:105
+msgid "Cleaning up stale connection: {0}"
+msgstr "清理过期连接: {0}"
+
+#: models/network/network_handler.py:110 models/network/service_browser.py:124
+msgid "Error in cleanup task: {0}"
+msgstr "清理任务错误：{0}"
+
+#: models/network/network_handler.py:130
+msgid "Error in security cleanup task: {0}"
+msgstr "安全清理任务出错：{0}"
+
+#: models/network/network_handler.py:162
+msgid "Service discovery setup complete"
+msgstr "服务发现设置完成"
+
+#: models/network/network_handler.py:164
+msgid "Failed to setup service discovery: {0}"
+msgstr "设置服务发现失败: {0}"
+
+#: models/network/network_handler.py:180
+msgid "WebSocket server started on port {0}"
+msgstr "WebSocket 服务器已在端口 {0} 上启动"
+
+#: models/network/network_handler.py:183
+msgid "WebSocket server error: {0}"
+msgstr "WebSocket服务器错误：{0}"
+
+#: models/network/network_handler.py:192
+msgid "Rejected connection from blacklisted address: {0}"
+msgstr "已拒绝来自黑名单地址的连接: {0}"
+
+#: models/network/network_handler.py:201
+msgid "Rejected connection: maximum connections reached"
+msgstr "连接被拒绝：已达到最大连接数"
+
+#: models/network/network_handler.py:211
+msgid "Key exchange timeout from {0}"
+msgstr "来自 {0} 的密钥交换超时"
+
+#: models/network/network_handler.py:230
+msgid "New connection from {0}"
+msgstr "来自 {0} 的新连接"
+
+#: models/network/network_handler.py:245
+msgid "Error handling message from {0}: {1}"
+msgstr "来自 {0} 的错误处理信息：{1}"
+
+#: models/network/network_handler.py:249
+msgid "Connection closed by {0}"
+msgstr "连接已被{0}关闭"
+
+#: models/network/network_handler.py:251
+msgid "Connection error with {0}: {1}"
+msgstr "与 {0} 的连接错误：{1}"
+
+#: models/network/network_handler.py:261
+msgid "Error closing connection to {0}: {1}"
+msgstr "关闭到 {0} 的连接时出错: {1}"
+
+#: models/network/network_handler.py:268
+msgid "Connection to {0} closed and cleaned up"
+msgstr "与 {0} 的连接已关闭并清理"
+
+#: models/network/network_handler.py:333
+msgid "Invalid JSON message"
+msgstr "无效的 JSON 消息"
+
+#: models/network/network_handler.py:336
+msgid "Error processing message: {0}"
+msgstr "处理消息时出错: {0}"
+
+#: models/network/network_handler.py:349
+msgid "Failed to send message to {0}: {1}"
+msgstr "无法向 {0} 发送消息：{1}"
+
+#: models/network/network_handler.py:358
+msgid "Error unregistering service: {0}"
+msgstr "注销服务时出错：{0}"
+
+#: models/network/network_handler.py:365
+msgid "Network handler cleaned up"
+msgstr "网络处理器已清理"
+
+#: models/network/network_handler.py:409
+msgid "Blacklisted {0} for suspicious connection attempts"
+msgstr "因可疑的连接尝试，将 {0} 加入黑名单"
+
+#: models/network/network_handler.py:431
+msgid "Rate limit exceeded for {0}"
+msgstr "已超出 {0} 的速率限制"
+
+#: models/network/network_handler.py:445
+msgid "Suspicious message size from {0}: {1} bytes"
+msgstr "来自{0}的可疑消息大小: {1} 字节"
+
+#: models/network/service_browser.py:48
+msgid "Error adding service {0}: {1}"
+msgstr "添加服务 {0} 时出错: {1}"
+
+#: models/network/service_browser.py:55
+msgid "Service removed: {0}"
+msgstr "服务已删除: {0}"
+
+#: models/network/service_browser.py:57
+msgid "Error removing service {0}: {1}"
+msgstr "删除服务 {0} 时出错: {1}"
+
+#: models/network/service_browser.py:63
+msgid "Error updating service {0}: {1}"
+msgstr "更新服务 {0} 时出错: {1}"
+
+#: models/network/service_browser.py:74
+msgid "Removing stale service: {0}"
+msgstr "正在删除过时的服务：{0}"
+
+#: models/network/service_browser.py:150
+msgid "Service browser started"
+msgstr "服务浏览器已启动"
+
+#: models/network/service_browser.py:152
+msgid "Failed to start service browser: {0}"
+msgstr "启动服务浏览器失败: {0}"
+
+#: models/network/service_browser.py:161
+msgid "Error removing service listener: {0}"
+msgstr "删除服务侦听器时出错: {0}"
+
+#: models/network/service_browser.py:163
+msgid "Service browser cleaned up"
+msgstr "服务浏览器已清理"
+
+#: models/network/service_browser.py:178
+msgid "Error getting service {0}: {1}"
+msgstr "获取服务 {0} 时出错：{1}"
+
+#: models/network/service_browser.py:187
+msgid "Service discovery stopped"
+msgstr "服务发现已停止"
+
+#: models/network/service_browser.py:189
+msgid "Error stopping service discovery: {0}"
+msgstr "停止服务发现时出错：{0}"
+
+#: ui/bookmark_tab.py:31 ui/network_tab.py:94
+msgid "Refresh"
+msgstr "刷新"
+
+#: ui/bookmark_tab.py:34
+msgid "Browser:"
+msgstr "浏览器:"
+
+#: ui/bookmark_tab.py:41 ui/main_window.py:120
+msgid "Bookmarks"
+msgstr "书签"
+
+#: ui/bookmark_tab.py:54 ui/bookmark_tab.py:91 ui/bookmark_tab.py:119
+#: ui/bookmark_tab.py:259 ui/bookmark_tab.py:280 ui/network_tab.py:157
+#: ui/network_tab.py:181 ui/network_tab.py:232 ui/network_tab.py:253
+#: ui/network_tab.py:299
+msgid "Error"
+msgstr "错误"
+
+#: ui/bookmark_tab.py:54
+msgid "No browser bookmark paths were found"
+msgstr "未找到浏览器书签路径"
+
+#: ui/bookmark_tab.py:80 ui/bookmark_tab.py:107 ui/bookmark_tab.py:108
+#: ui/network_tab.py:211 ui/network_tab.py:245 ui/network_tab.py:270
+msgid "No browser selected"
+msgstr "未选择浏览器"
+
+#: ui/bookmark_tab.py:88
+msgid "Bookmarks refreshed successfully"
+msgstr "书签刷新成功"
+
+#: ui/bookmark_tab.py:100
+msgid "Loading bookmarks for {0}..."
+msgstr "正在加载 {0} 的书签..."
+
+#: ui/bookmark_tab.py:116
+msgid "Loaded bookmarks from {0}"
+msgstr "已从 {0} 加载书签"
+
+#: ui/bookmark_tab.py:119
+msgid "Failed to load bookmarks for {0}"
+msgstr "加载 {0} 的书签失败"
+
+#: ui/bookmark_tab.py:160 ui/cross_browser_tab.py:270
+#: ui/cross_browser_tab.py:289
+msgid "Open in Browser"
+msgstr "在浏览器中打开"
+
+#: ui/bookmark_tab.py:164
+msgid "Edit"
+msgstr "编辑"
+
+#: ui/bookmark_tab.py:168 ui/bookmark_tab.py:181
+msgid "Delete"
+msgstr "删除"
+
+#: ui/bookmark_tab.py:173 ui/bookmark_tab.py:227 ui/main_window.py:31
+msgid "Add Bookmark"
+msgstr "添加书签"
+
+#: ui/bookmark_tab.py:177 ui/bookmark_tab.py:264
+msgid "Add Folder"
+msgstr "添加文件夹"
+
+#: ui/bookmark_tab.py:195 ui/main_window.py:31
+msgid "Edit Bookmark"
+msgstr "编辑书签"
+
+#: ui/bookmark_tab.py:201 ui/bookmark_tab.py:233 ui/main_window.py:38
+msgid "Title:"
+msgstr "标题:"
+
+#: ui/bookmark_tab.py:202 ui/bookmark_tab.py:234 ui/main_window.py:43
+msgid "URL:"
+msgstr "URL："
+
+#: ui/bookmark_tab.py:205 ui/bookmark_tab.py:237
+msgid "OK"
+msgstr "确定"
+
+#: ui/bookmark_tab.py:206 ui/bookmark_tab.py:238
+msgid "Cancel"
+msgstr "取消"
+
+#: ui/bookmark_tab.py:222
+msgid "Bookmark updated successfully"
+msgstr "书签更新成功"
+
+#: ui/bookmark_tab.py:257
+msgid "Bookmark added successfully"
+msgstr "书签添加成功"
+
+#: ui/bookmark_tab.py:259
+msgid "Title and URL are required"
+msgstr "标题和 URL 为必填项"
+
+#: ui/bookmark_tab.py:260
+msgid "Failed to add bookmark - missing fields"
+msgstr "添加书签失败 - 缺少字段"
+
+#: ui/bookmark_tab.py:264
+msgid "Enter folder name:"
+msgstr "输入文件夹名称："
+
+#: ui/bookmark_tab.py:278
+msgid "Item deleted successfully"
+msgstr "项目已成功删除"
+
+#: ui/bookmark_tab.py:280 ui/bookmark_tab.py:281
+msgid "Failed to delete item"
+msgstr "删除项目失败"
+
+#: ui/cross_browser_tab.py:37
+msgid "Search across all browsers..."
+msgstr "在所有浏览器中搜索..."
+
+#: ui/cross_browser_tab.py:39 ui/cross_browser_tab.py:114
+msgid "Search"
+msgstr "搜索"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "Title"
+msgstr "标题"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "URL"
+msgstr "URL"
+
+#: ui/cross_browser_tab.py:47 ui/cross_browser_tab.py:93
+msgid "Browser"
+msgstr "浏览器"
+
+#: ui/cross_browser_tab.py:72
+msgid "Enter URL to find similar bookmarks..."
+msgstr "输入 URL 以查找相似的书签..."
+
+#: ui/cross_browser_tab.py:74
+msgid "Find Similar"
+msgstr "查找相似"
+
+#: ui/cross_browser_tab.py:81
+msgid "Similarity threshold:"
+msgstr "相似度阈值:"
+
+#: ui/cross_browser_tab.py:93
+msgid "Similarity"
+msgstr "相似度"
+
+#: ui/cross_browser_tab.py:115
+msgid "Similar Bookmarks"
+msgstr "相似书签"
+
+#: ui/cross_browser_tab.py:121
+msgid "Load All Browsers"
+msgstr "加载所有浏览器"
+
+#: ui/cross_browser_tab.py:123
+msgid "Save All Changes"
+msgstr "保存所有更改"
+
+#: ui/cross_browser_tab.py:147 ui/cross_browser_tab.py:149
+msgid "Successfully loaded bookmarks from {0} browsers"
+msgstr "已成功加载来自 {0} 个浏览器的书签"
+
+#: ui/cross_browser_tab.py:154
+msgid "No bookmarks were loaded from any browser"
+msgstr "未从任何浏览器加载书签"
+
+#: ui/cross_browser_tab.py:156
+msgid "No bookmarks were loaded"
+msgstr "未加载书签"
+
+#: ui/cross_browser_tab.py:164
+msgid "Successfully saved changes to {0} browsers"
+msgstr "已成功将更改保存到 {0} 浏览器"
+
+#: ui/cross_browser_tab.py:165
+msgid "Success"
+msgstr "成功"
+
+#: ui/cross_browser_tab.py:165
+msgid "Saved changes to {0} browsers"
+msgstr "已保存对 {0} 浏览器的更改"
+
+#: ui/cross_browser_tab.py:167
+msgid "No changes were saved to any browser"
+msgstr "未在任何浏览器中保存更改"
+
+#: ui/cross_browser_tab.py:168 ui/network_tab.py:211 ui/network_tab.py:218
+#: ui/network_tab.py:239 ui/network_tab.py:245 ui/network_tab.py:270
+msgid "Warning"
+msgstr "警告"
+
+#: ui/cross_browser_tab.py:168
+msgid "No changes were saved"
+msgstr "未保存任何更改"
+
+#: ui/cross_browser_tab.py:179
+msgid "Searching for: {0}"
+msgstr "搜索：{0}"
+
+#: ui/cross_browser_tab.py:188
+msgid "No results found"
+msgstr "未找到结果"
+
+#: ui/cross_browser_tab.py:192
+msgid "Found {0} results"
+msgstr "找到 {0} 条结果"
+
+#: ui/cross_browser_tab.py:198 ui/cross_browser_tab.py:235
+msgid "Unknown"
+msgstr "未知"
+
+#: ui/cross_browser_tab.py:202
+msgid "Error searching bookmarks: {0}"
+msgstr "搜索书签时出错：{0}"
+
+#: ui/cross_browser_tab.py:203
+msgid "Error searching: {0}"
+msgstr "搜索错误：{0}"
+
+#: ui/cross_browser_tab.py:215
+msgid "Finding similar bookmarks..."
+msgstr "正在查找相似书签..."
+
+#: ui/cross_browser_tab.py:224
+msgid "No similar bookmarks found"
+msgstr "未找到相似书签"
+
+#: ui/cross_browser_tab.py:228
+msgid "Found {0} similar bookmarks"
+msgstr "找到 {0} 条相似书签"
+
+#: ui/cross_browser_tab.py:240
+msgid "Exact"
+msgstr "精确"
+
+#: ui/cross_browser_tab.py:242
+msgid "Word Match"
+msgstr "单词匹配"
+
+#: ui/cross_browser_tab.py:244
+msgid "Substring"
+msgstr "子字符串"
+
+#: ui/cross_browser_tab.py:246
+msgid "Similar"
+msgstr "相似"
+
+#: ui/cross_browser_tab.py:248
+msgid "Low ({0})"
+msgstr "低 ({0})"
+
+#: ui/cross_browser_tab.py:254 ui/cross_browser_tab.py:255
+msgid "Error finding similar bookmarks: {0}"
+msgstr "查找相似书签时出错：{0}"
+
+#: ui/cross_browser_tab.py:300
+msgid "Opened: {0}"
+msgstr "已打开：{0}"
+
+#: ui/main_window.py:48
+msgid "Description:"
+msgstr "描述："
+
+#: ui/main_window.py:73
+msgid "Bookmark Manager"
+msgstr "书签管理器"
+
+#: ui/main_window.py:95 ui/main_window.py:195 ui/main_window.py:197
+msgid "Ready"
+msgstr "就绪"
+
+#: ui/main_window.py:101 ui/main_window.py:207
+msgid "Network: {0}"
+msgstr "网络：{0}"
+
+#: ui/main_window.py:121
+msgid "Network"
+msgstr "网络"
+
+#: ui/main_window.py:122
+msgid "Cross-Browser"
+msgstr "跨浏览器"
+
+#: ui/main_window.py:137
+msgid "Loading bookmarks..."
+msgstr "正在加载书签..."
+
+#: ui/main_window.py:149
+msgid "Error in network handler: {0}"
+msgstr "网络处理程序错误: {0}"
+
+#: ui/main_window.py:155
+msgid "Main window closing, cleaning up resources"
+msgstr "主窗口正在关闭，正在清理资源"
+
+#: ui/main_window.py:165
+msgid "Saving modified bookmarks before closing"
+msgstr "关闭前保存已修改的书签"
+
+#: ui/main_window.py:177
+msgid "Error stopping network handler: {0}"
+msgstr "停止网络处理程序时出错：{0}"
+
+#: ui/network_tab.py:57
+msgid "Error starting service browser: {0}"
+msgstr "启动服务浏览器出错：{0}"
+
+#: ui/network_tab.py:69
+msgid "Manual Connection"
+msgstr "手动连接"
+
+#: ui/network_tab.py:73
+msgid "Enter IP address or hostname"
+msgstr "请输入 IP 地址或主机名"
+
+#: ui/network_tab.py:75
+msgid "Port (default: {0})"
+msgstr "端口（默认值: {0}）"
+
+#: ui/network_tab.py:78
+msgid "Connect"
+msgstr "连接"
+
+#: ui/network_tab.py:81
+msgid "Host:"
+msgstr "主机:"
+
+#: ui/network_tab.py:83
+msgid "Port:"
+msgstr "端口:"
+
+#: ui/network_tab.py:90
+msgid "Automatic Discovery"
+msgstr "自动发现"
+
+#: ui/network_tab.py:103
+msgid "Bookmark Operations"
+msgstr "书签操作"
+
+#: ui/network_tab.py:108 ui/network_tab.py:228
+msgid "Share All Bookmarks"
+msgstr "分享所有书签"
+
+#: ui/network_tab.py:114
+msgid "Enable Two-Way Sync"
+msgstr "启用双向同步"
+
+#: ui/network_tab.py:120 ui/network_tab.py:227
+msgid "Share Bookmarks"
+msgstr "分享书签"
+
+#: ui/network_tab.py:122
+msgid "Sync Bookmarks"
+msgstr "同步书签"
+
+#: ui/network_tab.py:157
+msgid "Please enter a host address"
+msgstr "请输入主机地址"
+
+#: ui/network_tab.py:172 ui/network_tab.py:193
+msgid "Connection Error"
+msgstr "连接错误"
+
+#: ui/network_tab.py:174 ui/network_tab.py:195
+msgid "Connection failed"
+msgstr "连接失败"
+
+#: ui/network_tab.py:181
+msgid "Please select an instance to connect to"
+msgstr "请选择要连接的实例"
+
+#: ui/network_tab.py:218
+msgid "No bookmarks to share"
+msgstr "没有可分享的书签"
+
+#: ui/network_tab.py:224
+msgid "All bookmarks shared successfully"
+msgstr "所有书签已成功共享"
+
+#: ui/network_tab.py:228
+msgid ""
+"Sharing selected bookmarks is not available yet. Check \"{0}\" to share all "
+"bookmarks."
+msgstr "尚未提供选中书签的共享。检查“{0}”以共享所有书签。"
+
+#: ui/network_tab.py:232
+msgid "Failed to share bookmarks: {0}"
+msgstr "共享书签失败: {0}"
+
+#: ui/network_tab.py:233
+msgid "Failed to share bookmarks"
+msgstr "共享书签失败"
+
+#: ui/network_tab.py:239
+msgid "Two-way sync is disabled"
+msgstr "双向同步已禁用"
+
+#: ui/network_tab.py:250
+msgid "Sync initiated"
+msgstr "同步已启动"
+
+#: ui/network_tab.py:253
+msgid "Failed to sync bookmarks: {0}"
+msgstr "同步书签失败: {0}"
+
+#: ui/network_tab.py:254
+msgid "Failed to sync bookmarks"
+msgstr "书签同步失败"
+
+#: ui/network_tab.py:288
+msgid "Sync Complete"
+msgstr "同步完成"
+
+#: ui/network_tab.py:289
+msgid "Successfully synced {0} bookmarks with local collection"
+msgstr "已成功将 {0} 条书签同步至本地收藏"
+
+#: ui/network_tab.py:294
+msgid "Bookmarks Received"
+msgstr "已接收书签"
+
+#: ui/network_tab.py:295
+msgid "Received {0} bookmarks from remote instance"
+msgstr "已接收来自远程实例的{0}个书签"
+
+#: ui/network_tab.py:299
+msgid "Failed to process received bookmarks: {0}"
+msgstr "处理接收的书签失败: {0}"
+
+#: ui/network_tab.py:300
+msgid "Failed to process received bookmarks"
+msgstr "处理接收的书签失败"
+
+#: ui/network_tab.py:304
+msgid "Connection lost"
+msgstr "连接已断开"
+
+#: ui/network_tab.py:307
+msgid "Connection Lost"
+msgstr "连接已断开"
+
+#: ui/network_tab.py:307
+msgid "The connection to the remote instance was lost"
+msgstr "与远程实例的连接已丢失"
+
+#: ui/network_tab.py:339
+msgid "Error during browser cleanup: {0}"
+msgstr "浏览器清理时出错: {0}"
+
+#: utils/translations.py:45
+msgid "Switched locale to: {0}"
+msgstr "已切换语言至：{0}"
+
+#: utils/utils.py:28
+msgid "URL normalization failed | URL: {0} | Error: {1}"
+msgstr "URL 正规化失败 | URL: {0} | 错误: {1}"

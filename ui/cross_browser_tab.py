@@ -9,6 +9,7 @@ from typing import Optional
 from models.bookmark_manager import BookmarkManager
 from models.bookmark import Bookmark, BrowserType
 from utils.utils import are_urls_similar, url_similarity, logger
+from utils.translations import _
 
 class CrossBrowserTab(QWidget):
     # Define a signal for status messages
@@ -33,9 +34,9 @@ class CrossBrowserTab(QWidget):
         # Search controls
         search_controls = QHBoxLayout()
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search across all browsers...")
+        self.search_input.setPlaceholderText(_("Search across all browsers..."))
         self.search_input.returnPressed.connect(self.search_bookmarks)
-        search_button = QPushButton("Search")
+        search_button = QPushButton(_("Search"))
         search_button.clicked.connect(self.search_bookmarks)
         search_controls.addWidget(self.search_input)
         search_controls.addWidget(search_button)
@@ -43,7 +44,7 @@ class CrossBrowserTab(QWidget):
         
         # Search results
         self.search_results = QTreeWidget()
-        self.search_results.setHeaderLabels(["Title", "URL", "Browser"])
+        self.search_results.setHeaderLabels([_("Title"), _("URL"), _("Browser")])
         self.search_results.setContextMenuPolicy(Qt.CustomContextMenu)
         self.search_results.customContextMenuRequested.connect(self.show_search_context_menu)
         # Set columns to stretch
@@ -68,16 +69,16 @@ class CrossBrowserTab(QWidget):
         # Similar bookmarks controls
         similar_controls = QHBoxLayout()
         self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Enter URL to find similar bookmarks...")
+        self.url_input.setPlaceholderText(_("Enter URL to find similar bookmarks..."))
         self.url_input.returnPressed.connect(self.find_similar_bookmarks)
-        find_button = QPushButton("Find Similar")
+        find_button = QPushButton(_("Find Similar"))
         find_button.clicked.connect(self.find_similar_bookmarks)
         similar_controls.addWidget(self.url_input)
         similar_controls.addWidget(find_button)
         
         # Similarity threshold
         threshold_layout = QHBoxLayout()
-        threshold_layout.addWidget(QLabel("Similarity threshold:"))
+        threshold_layout.addWidget(QLabel(_("Similarity threshold:")))
         self.threshold_spin = QDoubleSpinBox()
         self.threshold_spin.setRange(0.0, 1.0)
         self.threshold_spin.setValue(0.8)
@@ -89,7 +90,7 @@ class CrossBrowserTab(QWidget):
         
         # Similar bookmarks results
         self.similar_results = QTreeWidget()
-        self.similar_results.setHeaderLabels(["Title", "URL", "Browser", "Similarity"])
+        self.similar_results.setHeaderLabels([_("Title"), _("URL"), _("Browser"), _("Similarity")])
         self.similar_results.setContextMenuPolicy(Qt.CustomContextMenu)
         self.similar_results.customContextMenuRequested.connect(self.show_similar_context_menu)
         # Set columns to stretch
@@ -110,16 +111,16 @@ class CrossBrowserTab(QWidget):
         similar_tab.setLayout(similar_layout)
         
         # Add tabs to widget
-        tabs.addTab(search_tab, "Search")
-        tabs.addTab(similar_tab, "Similar Bookmarks")
+        tabs.addTab(search_tab, _("Search"))
+        tabs.addTab(similar_tab, _("Similar Bookmarks"))
         
         layout.addWidget(tabs)
         
         # Add buttons
         button_layout = QHBoxLayout()
-        load_button = QPushButton("Load All Browsers")
+        load_button = QPushButton(_("Load All Browsers"))
         load_button.clicked.connect(self.load_all_browsers)
-        save_button = QPushButton("Save All Changes")
+        save_button = QPushButton(_("Save All Changes"))
         save_button.clicked.connect(self.save_all_changes)
         
         button_layout.addWidget(load_button)
@@ -143,16 +144,16 @@ class CrossBrowserTab(QWidget):
         logger.debug(f"Browser load results: {results}")
         
         if success_count > 0:
-            logger.info(f"Successfully loaded bookmarks from {success_count} browsers")
+            logger.info(_("Successfully loaded bookmarks from {0} browsers").format(success_count))
             # Emit status signal
-            self.status_message.emit(f"Successfully loaded bookmarks from {success_count} browsers", False)
+            self.status_message.emit(_("Successfully loaded bookmarks from {0} browsers").format(success_count), False)
             # Try a test search to verify bookmarks are loaded
             self.search_input.setText("")
             self.search_bookmarks()
         else:
-            logger.warning("No bookmarks were loaded from any browser")
+            logger.warning(_("No bookmarks were loaded from any browser"))
             # Emit status signal
-            self.status_message.emit("No bookmarks were loaded", True)
+            self.status_message.emit(_("No bookmarks were loaded"), True)
     
     def save_all_changes(self):
         """Save changes to all browsers"""
@@ -160,11 +161,11 @@ class CrossBrowserTab(QWidget):
         results = self.bookmark_manager.save_all_bookmarks()
         success_count = sum(1 for success in results.values() if success)
         if success_count > 0:
-            logger.info(f"Successfully saved changes to {success_count} browsers")
-            QMessageBox.information(self, "Success", f"Saved changes to {success_count} browsers")
+            logger.info(_("Successfully saved changes to {0} browsers").format(success_count))
+            QMessageBox.information(self, _("Success"), _("Saved changes to {0} browsers").format(success_count))
         else:
-            logger.warning("No changes were saved to any browser")
-            QMessageBox.warning(self, "Warning", "No changes were saved")
+            logger.warning(_("No changes were saved to any browser"))
+            QMessageBox.warning(self, _("Warning"), _("No changes were saved"))
     
     def search_bookmarks(self):
         """Search for bookmarks across all browsers"""
@@ -175,7 +176,7 @@ class CrossBrowserTab(QWidget):
             return
         
         logger.info(f"Searching for bookmarks with query: {query}")
-        self.status_message.emit(f"Searching for: {query}", False)
+        self.status_message.emit(_("Searching for: {0}").format(query), False)
         
         try:
             results = self.bookmark_manager.search_all_bookmarks(query)
@@ -184,22 +185,22 @@ class CrossBrowserTab(QWidget):
             self.search_results.clear()
             if not results:
                 logger.info("No results found")
-                self.status_message.emit("No results found", False)
+                self.status_message.emit(_("No results found"), False)
                 return
                 
             logger.info(f"Found {len(results)} results")
-            self.status_message.emit(f"Found {len(results)} results", False)
+            self.status_message.emit(_("Found {0} results").format(len(results)), False)
             
             for bookmark in results:
                 item = QTreeWidgetItem(self.search_results)
                 item.setText(0, bookmark.title)
                 item.setText(1, bookmark.url)
-                item.setText(2, bookmark.browser.value if bookmark.browser else "Unknown")
+                item.setText(2, bookmark.browser.value if bookmark.browser else _("Unknown"))
                 item.setData(0, Qt.UserRole, bookmark)
                 
         except Exception as e:
-            logger.error(f"Error searching bookmarks: {e}")
-            self.status_message.emit(f"Error searching: {str(e)}", True)
+            logger.error(_("Error searching bookmarks: {0}").format(e))
+            self.status_message.emit(_("Error searching: {0}").format(e), True)
     
     def find_similar_bookmarks(self):
         """Find bookmarks with similar URLs"""
@@ -211,7 +212,7 @@ class CrossBrowserTab(QWidget):
         
         threshold = self.threshold_spin.value()
         logger.info(f"Finding similar URLs to: {url} with threshold {threshold:.2f}")
-        self.status_message.emit(f"Finding similar bookmarks...", False)
+        self.status_message.emit(_("Finding similar bookmarks..."), False)
         
         try:
             results = self.bookmark_manager.find_similar_bookmarks(url, threshold)
@@ -220,38 +221,38 @@ class CrossBrowserTab(QWidget):
             self.similar_results.clear()
             if not results:
                 logger.info("No similar bookmarks found")
-                self.status_message.emit("No similar bookmarks found", False)
+                self.status_message.emit(_("No similar bookmarks found"), False)
                 return
                 
             logger.info(f"Found {len(results)} similar bookmarks")
-            self.status_message.emit(f"Found {len(results)} similar bookmarks", False)
+            self.status_message.emit(_("Found {0} similar bookmarks").format(len(results)), False)
             
             for bookmark in results:
-                similarity = are_urls_similar(url, bookmark.url)
+                similarity = url_similarity(url, bookmark.url)
                 item = QTreeWidgetItem(self.similar_results)
                 item.setText(0, bookmark.title)
                 item.setText(1, bookmark.url)
-                item.setText(2, bookmark.browser.value if bookmark.browser else "Unknown")
+                item.setText(2, bookmark.browser.value if bookmark.browser else _("Unknown"))
                 
                 # Determine similarity type and display descriptive text
                 sim_text = f"{similarity:.2f}"
                 if similarity == 1.0:
-                    sim_text = "Exact"
+                    sim_text = _("Exact")
                 elif similarity >= 0.9:
-                    sim_text = "Word Match"
+                    sim_text = _("Word Match")
                 elif similarity >= 0.8:
-                    sim_text = "Substring"
+                    sim_text = _("Substring")
                 elif similarity >= 0.5:
-                    sim_text = "Similar"
+                    sim_text = _("Similar")
                 else:
-                    sim_text = f"Low ({similarity:.2f})"
+                    sim_text = _("Low ({0})").format(f"{similarity:.2f}")
                     
                 item.setText(3, sim_text)
                 item.setData(0, Qt.UserRole, bookmark)
                 
         except Exception as e:
-            logger.error(f"Error finding similar bookmarks: {e}")
-            self.status_message.emit(f"Error finding similar bookmarks: {str(e)}", True)
+            logger.error(_("Error finding similar bookmarks: {0}").format(e))
+            self.status_message.emit(_("Error finding similar bookmarks: {0}").format(e), True)
     
     def show_search_context_menu(self, position):
         """Show context menu for search results"""
@@ -266,7 +267,7 @@ class CrossBrowserTab(QWidget):
         menu = QMenu()
         
         # Add actions
-        open_action = QAction("Open in Browser", self)
+        open_action = QAction(_("Open in Browser"), self)
         open_action.triggered.connect(lambda: self.open_bookmark(bookmark))
         menu.addAction(open_action)
         
@@ -285,7 +286,7 @@ class CrossBrowserTab(QWidget):
         menu = QMenu()
         
         # Add actions
-        open_action = QAction("Open in Browser", self)
+        open_action = QAction(_("Open in Browser"), self)
         open_action.triggered.connect(lambda: self.open_bookmark(bookmark))
         menu.addAction(open_action)
         
@@ -296,7 +297,7 @@ class CrossBrowserTab(QWidget):
         logger.info(f"Opening bookmark: {bookmark.url}", browser=bookmark.browser.value if bookmark.browser else None)
         import webbrowser
         webbrowser.open(bookmark.url)
-        self.status_message.emit(f"Opened: {bookmark.title}", False)
+        self.status_message.emit(_("Opened: {0}").format(bookmark.title), False)
 
     def on_resize(self, event):
         """Handle window resize event to maintain column proportions"""
